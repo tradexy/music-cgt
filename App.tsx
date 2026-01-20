@@ -149,12 +149,12 @@ function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-500 overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center p-8 transition-colors duration-500 overflow-hidden"
       style={{ backgroundColor: backdropColor }}
     >
 
       {/* Header */}
-      <div className="w-full max-w-7xl mb-6 flex justify-between items-end border-b pb-4 shrink-0" style={{ borderColor: `${textColor}11` }}>
+      <div className="w-full max-w-7xl mb-8 flex justify-between items-end border-b pb-4 shrink-0" style={{ borderColor: `${textColor}11` }}>
         <div className="flex items-center gap-6">
           <div>
             <h1 className="text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
@@ -198,7 +198,7 @@ function App() {
       {/* Theme Settings Bar */}
       {showThemeSettings && (
         <div
-          className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-6 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-between shrink-0"
+          className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-8 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-between shrink-0"
           style={{ borderColor: `${textColor}22` }}
         >
           <div className="flex items-center gap-4">
@@ -256,12 +256,12 @@ function App() {
         </div>
       )}
 
-      {/* Main Grid: 30 / 70 Split */}
-      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 flex-1 min-h-0 min-w-0 mb-8">
+      {/* Main Grid: 40 / 60 Split (Adjusted from 30/70 for Rectangular feel) */}
+      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-12 flex-1 min-h-0 min-w-0 mb-8">
 
-        {/* Left Column: Sequencer */}
-        <div className="flex flex-col gap-6 min-h-0">
-          <div className="bg-black/40 p-1.5 rounded-3xl border shadow-2xl backdrop-blur-md overflow-hidden" style={{ borderColor: `${textColor}11` }}>
+        {/* Left Column: Sequencer (Wider Area with Padding) */}
+        <div className="flex flex-col gap-8 min-h-0">
+          <div className="bg-black/40 p-6 rounded-[40px] border shadow-2xl backdrop-blur-md overflow-hidden" style={{ borderColor: `${textColor}11` }}>
             <SequencerGrid
               steps={state.steps}
               currentStep={state.currentStep}
@@ -274,7 +274,7 @@ function App() {
           <div className="grid grid-cols-2 gap-4 shrink-0">
             <button
               onClick={() => setState(prev => ({ ...prev, steps: prev.steps.map(s => ({ ...s, active: false })) }))}
-              className="px-6 py-3 text-[10px] font-black border-2 border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all shadow-lg uppercase italic"
+              className="px-6 py-4 text-[11px] font-black border-2 border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-[24px] transition-all shadow-lg uppercase italic"
             >
               Clear Pattern
             </button>
@@ -288,7 +288,7 @@ function App() {
                   }))
                 }));
               }}
-              className="px-6 py-3 text-[10px] font-black border-2 rounded-2xl transition-all shadow-lg uppercase italic hover:bg-white hover:text-black"
+              className="px-6 py-4 text-[11px] font-black border-2 rounded-[24px] transition-all shadow-lg uppercase italic hover:bg-white hover:text-black"
               style={{ borderColor: `${primaryColor}22`, color: textColor }}
             >
               Randomize
@@ -296,7 +296,7 @@ function App() {
           </div>
         </div>
 
-        {/* Right Column: Integrated Controls - Constrained height with bottom gap */}
+        {/* Right Column: Integrated Controls */}
         <div
           className="bg-white/5 p-8 rounded-[40px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-10 max-h-[85vh] overflow-hidden"
           style={{ borderColor: `${textColor}11` }}
@@ -340,7 +340,7 @@ function App() {
             </div>
           </div>
 
-          {/* Main Area: Spaced Out Vertical Sliders - No overflow, fixed aspect */}
+          {/* Main Area: Spaced Out Vertical Sliders */}
           <div className="flex-1 bg-black/30 p-10 rounded-[40px] border flex justify-between gap-4 min-h-0 overflow-hidden" style={{ borderColor: `${textColor}11` }}>
             <VerticalSlider
               label="Tempo" value={state.bpm} min={20} max={300}
@@ -380,9 +380,9 @@ function App() {
         textColor={textColor}
       />
 
-      {/* Footer with Padding to ensure space to bottom */}
+      {/* Footer */}
       <div className="pb-10 flex items-center gap-6 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
-        <span>Web Audio 2.2</span>
+        <span>Web Audio 2.3</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
         <span>High-Precision MIDI</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>

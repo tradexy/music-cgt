@@ -46,8 +46,8 @@ export const THEME_PRESETS: ThemePreset[] = [
   {
     name: 'Acid',
     theme: {
-      primary: '#39ff14', // Neon Green
-      backdrop: '#1a1c23', // Deep Purple/Dark Gray
+      primary: '#1db954', // Darker Acid Green (Spotify-esque)
+      backdrop: '#121212', // Near Black
       text: '#ffffff',
       accent: '#ffffff'
     }
@@ -64,10 +64,10 @@ export const THEME_PRESETS: ThemePreset[] = [
   {
     name: 'Classic',
     theme: {
-      primary: '#ffffff',
+      primary: '#3f3f46', // Dark Grey (Zinc 700)
       backdrop: '#000000',
       text: '#ffffff',
-      accent: '#4b5563'
+      accent: '#71717a'
     }
   },
   {

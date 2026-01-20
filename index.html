@@ -1,33 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>music-cgt | Acid Sequencer</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%231a1c23%22/><path d=%22M20 50 L80 50 L80 80 L20 80 Z%22 fill=%22%2339ff14%22/><path d=%22M30 30 L40 30 L40 50 L30 50 Z%22 fill=%22%23ffffff%22/><path d=%22M50 20 L60 20 L60 50 L50 50 Z%22 fill=%22%23ffffff%22/><path d=%22M70 30 L80 30 L80 50 L70 50 Z%22 fill=%22%23ffffff%22/></svg>">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              acid: {
-                900: '#1a1c23',
-                800: '#23263a',
-                700: '#2e3440',
-                accent: '#e2e8f0',
-                green: '#39ff14', // Neon Green
-                pink: '#ff00ff',  // Neon Pink
-                yellow: '#ffff00' // Neon Yellow
-              }
-            },
-            fontFamily: {
-              mono: ['"Courier New"', 'Courier', 'monospace'],
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>music-cgt | Acid Sequencer</title>
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%231a1c23%22/><path d=%22M20 50 L80 50 L80 80 L20 80 Z%22 fill=%22%2339ff14%22/><path d=%22M30 30 L40 30 L40 50 L30 50 Z%22 fill=%22%23ffffff%22/><path d=%22M50 20 L60 20 L60 50 L50 50 Z%22 fill=%22%23ffffff%22/><path d=%22M70 30 L80 30 L80 50 L70 50 Z%22 fill=%22%23ffffff%22/></svg>">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            acid: {
+              900: '#1a1c23',
+              800: '#23263a',
+              700: '#2e3440',
+              accent: '#e2e8f0',
+              green: '#39ff14', // Neon Green
+              pink: '#ff00ff',  // Neon Pink
+              yellow: '#ffff00' // Neon Yellow
             }
+          },
+          fontFamily: {
+            mono: ['"Courier New"', 'Courier', 'monospace'],
           }
         }
       }
-    </script>
+    }
+  </script>
   <script type="importmap">
 {
   "imports": {
@@ -37,10 +39,17 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#121212">
+  <link rel="manifest" href="/manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/index.css">
 </head>
-  <body class="bg-acid-900 text-acid-accent font-mono antialiased overflow-hidden">
-    <div id="root"></div>
+
+<body class="bg-acid-900 text-acid-accent font-mono antialiased min-h-screen">
+  <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

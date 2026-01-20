@@ -40,6 +40,7 @@ export interface SequencerState {
   customPrimary?: string;
   customBackdrop?: string;
   customText?: string;
+  controlSpeed?: number; // v2.5: 1-5 sensitivity
 }
 
 export const THEME_PRESETS: ThemePreset[] = [
@@ -64,10 +65,10 @@ export const THEME_PRESETS: ThemePreset[] = [
   {
     name: 'Classic',
     theme: {
-      primary: '#3f3f46', // Dark Grey (Zinc 700)
-      backdrop: '#000000',
-      text: '#ffffff',
-      accent: '#71717a'
+      primary: '#003366', // Deep Navy
+      backdrop: '#f5f5ed', // Premium Cream/Beige
+      text: '#1a1a1a', // Dark Charcoal
+      accent: '#a0a090'
     }
   },
   {

@@ -5,7 +5,7 @@ import { InstructionsModal } from './components/InstructionsModal';
 import { audioEngine } from './services/AudioEngine';
 import { midiService } from './services/MidiService';
 import { SequencerState, Step, NOTES, THEME_PRESETS } from './types';
-import { HelpCircle, Play, Square, Palette, Type } from 'lucide-react';
+import { HelpCircle, Play, Square, Palette, Type, Zap } from 'lucide-react';
 
 // Constants
 const STEPS_PER_BAR = 16;
@@ -32,6 +32,7 @@ function App() {
     envMod: 70,
     selectedMidiOutputId: null,
     themeName: 'Acid',
+    controlSpeed: 2, // Default speed
   });
 
   const [midiOutputs, setMidiOutputs] = useState<{ id: string; name: string }[]>([]);
@@ -58,20 +59,30 @@ function App() {
       if (target.tagName === 'INPUT') return;
 
       const key = e.key.toLowerCase();
-      const stepSize = 2;
-      const bpmStepSize = 1;
+
+      // Speed sensitivity mapping (v2.5)
+      // Speed 1: slow (0.5x), Speed 2: normal (1x), Speed 3: fast (1.5x), Speed 4: faster (2x), Speed 5: rapid (3x)
+      const speedIncrements: Record<number, number> = { 1: 1, 2: 2, 3: 4, 4: 8, 5: 16 };
+      const currentIncrement = speedIncrements[stateRef.current.controlSpeed || 2];
+      const bpmStepSize = Math.max(1, currentIncrement / 2);
+
+      // Numeric keys for Speed (1-5)
+      if (['1', '2', '3', '4', '5'].includes(key)) {
+        setState(prev => ({ ...prev, controlSpeed: Number(key) }));
+        return;
+      }
 
       switch (key) {
         case 'q': setState(prev => ({ ...prev, bpm: Math.min(300, prev.bpm + bpmStepSize) })); break;
         case 'a': setState(prev => ({ ...prev, bpm: Math.max(20, prev.bpm - bpmStepSize) })); break;
-        case 'w': setState(prev => ({ ...prev, cutoff: Math.min(100, prev.cutoff + stepSize) })); break;
-        case 's': setState(prev => ({ ...prev, cutoff: Math.max(0, prev.cutoff - stepSize) })); break;
-        case 'e': setState(prev => ({ ...prev, resonance: Math.min(100, prev.resonance + stepSize) })); break;
-        case 'd': setState(prev => ({ ...prev, resonance: Math.max(0, prev.resonance - stepSize) })); break;
-        case 'r': setState(prev => ({ ...prev, envMod: Math.min(100, prev.envMod + stepSize) })); break;
-        case 'f': setState(prev => ({ ...prev, envMod: Math.max(0, prev.envMod - stepSize) })); break;
-        case 't': setState(prev => ({ ...prev, decay: Math.min(100, prev.decay + stepSize) })); break;
-        case 'g': setState(prev => ({ ...prev, decay: Math.max(0, prev.decay - stepSize) })); break;
+        case 'w': setState(prev => ({ ...prev, cutoff: Math.min(100, prev.cutoff + currentIncrement) })); break;
+        case 's': setState(prev => ({ ...prev, cutoff: Math.max(0, prev.cutoff - currentIncrement) })); break;
+        case 'e': setState(prev => ({ ...prev, resonance: Math.min(100, prev.resonance + currentIncrement) })); break;
+        case 'd': setState(prev => ({ ...prev, resonance: Math.max(0, prev.resonance - currentIncrement) })); break;
+        case 'r': setState(prev => ({ ...prev, envMod: Math.min(100, prev.envMod + currentIncrement) })); break;
+        case 'f': setState(prev => ({ ...prev, envMod: Math.max(0, prev.envMod - currentIncrement) })); break;
+        case 't': setState(prev => ({ ...prev, decay: Math.min(100, prev.decay + currentIncrement) })); break;
+        case 'g': setState(prev => ({ ...prev, decay: Math.max(0, prev.decay - currentIncrement) })); break;
         case 'i': setState(prev => ({ ...prev, waveform: 'sawtooth' })); break;
         case 'o': setState(prev => ({ ...prev, waveform: 'square' })); break;
         case 'p': togglePlay(); break;
@@ -182,7 +193,7 @@ function App() {
           </button>
 
           <select
-            className="bg-black/40 border rounded-lg text-xs p-2.5 focus:border-white outline-none font-bold"
+            className="bg-black/20 border rounded-lg text-xs p-2.5 focus:border-white outline-none font-bold"
             style={{ color: textColor, borderColor: `${textColor}22` }}
             value={state.selectedMidiOutputId || ''}
             onChange={(e) => setState(prev => ({ ...prev, selectedMidiOutputId: e.target.value || null }))}
@@ -222,6 +233,22 @@ function App() {
           </div>
 
           <div className="flex items-center gap-8">
+            {/* Control Speed Selector (v2.5) */}
+            <div className="flex items-center gap-2">
+              <Zap size={14} style={{ color: textColor }} />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Speed:</span>
+              <select
+                value={state.controlSpeed}
+                onChange={(e) => setState(prev => ({ ...prev, controlSpeed: Number(e.target.value) }))}
+                className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                style={{ color: textColor }}
+              >
+                {[1, 2, 3, 4, 5].map(v => (
+                  <option key={v} value={v} className="bg-zinc-900">{v}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="flex items-center gap-2">
               <Palette size={14} style={{ color: textColor }} />
               <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Primary:</span>
@@ -259,7 +286,7 @@ function App() {
       {/* Main Grid: 40 / 60 Split */}
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-12 flex-1 min-h-0 min-w-0 mb-8">
 
-        {/* Left Column: Sequencer (Symmetric with Right Column) */}
+        {/* Left Column: Sequencer */}
         <div className="flex flex-col gap-8 max-h-[85vh] overflow-hidden">
           <div className="flex-1 bg-black/40 p-6 rounded-[40px] border shadow-2xl backdrop-blur-md overflow-hidden flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
             <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 -mr-2">
@@ -384,11 +411,13 @@ function App() {
 
       {/* Footer */}
       <div className="pb-10 flex items-center gap-6 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
-        <span>Web Audio 2.4</span>
+        <span>Web Audio 2.5</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
         <span>High-Precision MIDI</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
         <span>{state.themeName} Edition</span>
+        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
+        <span className="flex items-center gap-1"><Zap size={10} /> Speed {state.controlSpeed}</span>
       </div>
     </div>
   );

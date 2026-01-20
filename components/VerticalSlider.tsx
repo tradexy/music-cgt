@@ -51,10 +51,19 @@ export const VerticalSlider: React.FC<VerticalSliderProps> = ({
         </div>
 
         {/* Track Container with Substantial Caps */}
-        <div className="relative w-14 h-full bg-black/60 rounded-xl border border-white/5 flex flex-col items-center justify-center p-1 overflow-hidden shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)]">
+        <div
+          className="relative w-14 h-full rounded-xl border flex flex-col items-center justify-center p-1 overflow-hidden shadow-inner"
+          style={{
+            backgroundColor: `${textColor}11`,
+            borderColor: `${textColor}11`
+          }}
+        >
 
-          {/* Top Decorative Cap - Solid visual boundary */}
-          <div className="absolute top-0 left-0 right-0 h-4 bg-zinc-800/80 border-b border-white/10 z-20 flex items-center justify-center shadow-md">
+          {/* Top Decorative Cap */}
+          <div
+            className="absolute top-0 left-0 right-0 h-4 border-b z-20 flex items-center justify-center shadow-sm"
+            style={{ backgroundColor: `${textColor}22`, borderColor: `${textColor}11` }}
+          >
             <div className="w-6 h-0.5 bg-white/20 rounded-full"></div>
           </div>
 
@@ -73,33 +82,37 @@ export const VerticalSlider: React.FC<VerticalSliderProps> = ({
               writingMode: 'vertical-lr',
               direction: 'rtl',
               width: '100%',
-              height: 'calc(100% - 2.5rem)', // Account for larger caps
+              height: 'calc(100% - 2.5rem)',
               WebkitAppearance: 'none',
               background: 'transparent',
               cursor: 'pointer'
             }}
-            className="relative z-10 appearance-none bg-transparent hover:outline-none focus:outline-none 
+            className={`relative z-10 appearance-none bg-transparent hover:outline-none focus:outline-none 
               [&::-webkit-slider-thumb]:appearance-none 
               [&::-webkit-slider-thumb]:w-10 
               [&::-webkit-slider-thumb]:h-6 
               [&::-webkit-slider-thumb]:bg-white 
               [&::-webkit-slider-thumb]:rounded-md 
-              [&::-webkit-slider-thumb]:shadow-[0_0_15px_rgba(255,255,255,0.5),_0_2px_5px_rgba(0,0,0,0.8)] 
+              [&::-webkit-slider-thumb]:shadow-[0_2px_10px_rgba(0,0,0,0.3)] 
               [&::-webkit-slider-thumb]:border-y-2 
-              [&::-webkit-slider-thumb]:border-gray-200"
+              [&::-webkit-slider-thumb]:border-gray-200`}
           />
 
           {/* Active Fill (Visual Only) */}
           <div
-            className="absolute bottom-4 w-1 rounded-full transition-all duration-75 shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+            className="absolute bottom-4 w-1 rounded-full transition-all duration-75"
             style={{
               height: `${((value - min) / (max - min)) * 85}%`,
-              backgroundColor: color
+              backgroundColor: color,
+              boxShadow: `0 0 10px ${color}66`
             }}
           ></div>
 
-          {/* Bottom Visual Cap (Fix for "bottomless") - Solid visual boundary */}
-          <div className="absolute bottom-0 left-0 right-0 h-4 bg-zinc-800/80 border-t border-white/10 z-20 flex items-center justify-center shadow-[0_-4px_10px_rgba(0,0,0,0.5)]">
+          {/* Bottom Visual Cap */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-4 border-t z-20 flex items-center justify-center shadow-md"
+            style={{ backgroundColor: `${textColor}22`, borderColor: `${textColor}11` }}
+          >
             <div className="w-6 h-0.5 bg-white/30 rounded-full"></div>
           </div>
         </div>

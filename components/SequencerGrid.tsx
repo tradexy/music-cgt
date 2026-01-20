@@ -58,12 +58,13 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
                   style.boxShadow = `0 0 10px ${accentColor}66`;
                   style.borderColor = accentColor;
                 } else {
-                  cellClass += "bg-white/[0.03] ";
+                  style.backgroundColor = `${textColor}08`; // Dynamic passive cell
                 }
 
                 if (isCurrent) {
-                  cellClass += "ring-1 shadow-[0_0_15px_rgba(255,255,255,0.3)] z-10 ";
+                  cellClass += "ring-2 z-10 ";
                   style.ringColor = textColor;
+                  style.boxShadow = `0 0 20px ${textColor}33`; // Adaptive shadow
                 } else {
                   cellClass += "opacity-80 ";
                 }

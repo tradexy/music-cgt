@@ -49,7 +49,7 @@ function App() {
   const currentTheme = THEME_PRESETS.find(p => p.name === state.themeName)?.theme || THEME_PRESETS[0].theme;
   const primaryColor = state.customPrimary || currentTheme.primary;
   const backdropColor = state.customBackdrop || currentTheme.backdrop;
-  const textColor = state.customText || currentTheme.text; // Global Text Color
+  const textColor = state.customText || currentTheme.text;
 
   // --- Keyboard Shortcuts ---
   useEffect(() => {
@@ -154,7 +154,7 @@ function App() {
     >
 
       {/* Header */}
-      <div className="w-full max-w-7xl mb-6 flex justify-between items-end border-b pb-4" style={{ borderColor: `${textColor}11` }}>
+      <div className="w-full max-w-7xl mb-6 flex justify-between items-end border-b pb-4 shrink-0" style={{ borderColor: `${textColor}11` }}>
         <div className="flex items-center gap-6">
           <div>
             <h1 className="text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
@@ -198,7 +198,7 @@ function App() {
       {/* Theme Settings Bar */}
       {showThemeSettings && (
         <div
-          className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-6 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-between"
+          className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-6 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-between shrink-0"
           style={{ borderColor: `${textColor}22` }}
         >
           <div className="flex items-center gap-4">
@@ -257,11 +257,11 @@ function App() {
       )}
 
       {/* Main Grid: 30 / 70 Split */}
-      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8">
+      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8 flex-1 min-h-0 min-w-0 mb-8">
 
         {/* Left Column: Sequencer */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-black/40 p-1.5 rounded-3xl border shadow-2xl backdrop-blur-md" style={{ borderColor: `${textColor}11` }}>
+        <div className="flex flex-col gap-6 min-h-0">
+          <div className="bg-black/40 p-1.5 rounded-3xl border shadow-2xl backdrop-blur-md overflow-hidden" style={{ borderColor: `${textColor}11` }}>
             <SequencerGrid
               steps={state.steps}
               currentStep={state.currentStep}
@@ -271,7 +271,7 @@ function App() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 shrink-0">
             <button
               onClick={() => setState(prev => ({ ...prev, steps: prev.steps.map(s => ({ ...s, active: false })) }))}
               className="px-6 py-3 text-[10px] font-black border-2 border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all shadow-lg uppercase italic"
@@ -296,15 +296,18 @@ function App() {
           </div>
         </div>
 
-        {/* Right Column: Integrated Controls */}
-        <div className="bg-white/5 p-8 rounded-[40px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-10" style={{ borderColor: `${textColor}11` }}>
+        {/* Right Column: Integrated Controls - Constrained height with bottom gap */}
+        <div
+          className="bg-white/5 p-8 rounded-[40px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-10 max-h-[85vh] overflow-hidden"
+          style={{ borderColor: `${textColor}11` }}
+        >
 
           {/* Top Row: Play & Waveform */}
-          <div className="flex items-stretch gap-6 h-28">
+          <div className="flex items-stretch gap-6 h-28 shrink-0">
             <button
               onClick={togglePlay}
               className="flex-[2] rounded-[30px] flex items-center justify-center transition-all shadow-2xl hover:scale-[1.01] active:scale-[0.98]"
-              style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: (state.isPlaying || primaryColor !== '#ffffff') ? '#fff' : '#000' }}
+              style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: textColor }}
             >
               {state.isPlaying ? (
                 <div className="flex items-center gap-4 font-black italic text-3xl uppercase tracking-tighter"><Square size={32} fill="currentColor" /> Stop</div>
@@ -315,15 +318,21 @@ function App() {
 
             <div className="flex-1 bg-black/40 rounded-[30px] flex p-1.5 border" style={{ borderColor: `${textColor}11` }}>
               <button
-                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all ${state.waveform === 'sawtooth' ? 'bg-white/10 shadow-inner' : 'opacity-40'}`}
-                style={{ color: state.waveform === 'sawtooth' ? primaryColor : textColor }}
+                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all`}
+                style={{
+                  color: state.waveform === 'sawtooth' ? primaryColor : `${textColor}33`,
+                  backgroundColor: state.waveform === 'sawtooth' ? 'rgba(255,255,255,0.05)' : 'transparent'
+                }}
                 onClick={() => setState(p => ({ ...p, waveform: 'sawtooth' }))}
               >
                 SAW (I)
               </button>
               <button
-                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all ${state.waveform === 'square' ? 'bg-white/10 shadow-inner' : 'opacity-40'}`}
-                style={{ color: state.waveform === 'square' ? primaryColor : textColor }}
+                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all`}
+                style={{
+                  color: state.waveform === 'square' ? primaryColor : `${textColor}33`,
+                  backgroundColor: state.waveform === 'square' ? 'rgba(255,255,255,0.05)' : 'transparent'
+                }}
                 onClick={() => setState(p => ({ ...p, waveform: 'square' }))}
               >
                 SQR (O)
@@ -331,14 +340,14 @@ function App() {
             </div>
           </div>
 
-          {/* Main Area: Spaced Out Vertical Sliders */}
-          <div className="flex-1 bg-black/30 p-10 rounded-[40px] border flex justify-between gap-6 overflow-hidden min-h-[450px]" style={{ borderColor: `${textColor}11` }}>
+          {/* Main Area: Spaced Out Vertical Sliders - No overflow, fixed aspect */}
+          <div className="flex-1 bg-black/30 p-10 rounded-[40px] border flex justify-between gap-4 min-h-0 overflow-hidden" style={{ borderColor: `${textColor}11` }}>
             <VerticalSlider
               label="Tempo" value={state.bpm} min={20} max={300}
               onChange={(v) => setState(p => ({ ...p, bpm: v }))}
               color="#fff" textColor={textColor} shortcut="Q/A"
             />
-            <div className="w-px h-full mx-2" style={{ backgroundColor: `${textColor}11` }}></div>
+            <div className="w-px h-full mx-2 shrink-0" style={{ backgroundColor: `${textColor}11` }}></div>
             <VerticalSlider
               label="Cutoff" value={state.cutoff} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, cutoff: v }))}
@@ -371,8 +380,9 @@ function App() {
         textColor={textColor}
       />
 
-      <div className="mt-8 flex items-center gap-6 text-[9px] font-black tracking-[0.3em] uppercase opacity-40" style={{ color: textColor }}>
-        <span>Web Audio 2.1</span>
+      {/* Footer with Padding to ensure space to bottom */}
+      <div className="pb-10 flex items-center gap-6 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
+        <span>Web Audio 2.2</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
         <span>High-Precision MIDI</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>

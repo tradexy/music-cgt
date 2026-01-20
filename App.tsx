@@ -5,7 +5,7 @@ import { InstructionsModal } from './components/InstructionsModal';
 import { audioEngine } from './services/AudioEngine';
 import { midiService } from './services/MidiService';
 import { SequencerState, Step, NOTES, THEME_PRESETS } from './types';
-import { HelpCircle, Play, Square, Palette, Type, Zap } from 'lucide-react';
+import { HelpCircle, Play, Square, Settings, Type, Zap } from 'lucide-react';
 
 // Constants
 const STEPS_PER_BAR = 16;
@@ -32,7 +32,7 @@ function App() {
     envMod: 70,
     selectedMidiOutputId: null,
     themeName: 'Acid',
-    controlSpeed: 2, // Default speed
+    controlSpeed: 2,
   });
 
   const [midiOutputs, setMidiOutputs] = useState<{ id: string; name: string }[]>([]);
@@ -60,13 +60,10 @@ function App() {
 
       const key = e.key.toLowerCase();
 
-      // Speed sensitivity mapping (v2.5)
-      // Speed 1: slow (0.5x), Speed 2: normal (1x), Speed 3: fast (1.5x), Speed 4: faster (2x), Speed 5: rapid (3x)
       const speedIncrements: Record<number, number> = { 1: 1, 2: 2, 3: 4, 4: 8, 5: 16 };
       const currentIncrement = speedIncrements[stateRef.current.controlSpeed || 2];
       const bpmStepSize = Math.max(1, currentIncrement / 2);
 
-      // Numeric keys for Speed (1-5)
       if (['1', '2', '3', '4', '5'].includes(key)) {
         setState(prev => ({ ...prev, controlSpeed: Number(key) }));
         return;
@@ -189,7 +186,7 @@ function App() {
             className="p-2 bg-white/5 rounded-lg border transition-all hover:bg-white/10"
             style={{ color: textColor, borderColor: `${textColor}22` }}
           >
-            <Palette size={18} />
+            <Settings size={18} />
           </button>
 
           <select
@@ -233,7 +230,6 @@ function App() {
           </div>
 
           <div className="flex items-center gap-8">
-            {/* Control Speed Selector (v2.5) */}
             <div className="flex items-center gap-2">
               <Zap size={14} style={{ color: textColor }} />
               <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Speed:</span>
@@ -250,7 +246,7 @@ function App() {
             </div>
 
             <div className="flex items-center gap-2">
-              <Palette size={14} style={{ color: textColor }} />
+              <Settings size={14} style={{ color: textColor }} />
               <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Primary:</span>
               <input
                 type="color"
@@ -260,7 +256,7 @@ function App() {
               />
             </div>
             <div className="flex items-center gap-2">
-              <Palette size={14} style={{ color: textColor }} />
+              <Settings size={14} style={{ color: textColor }} />
               <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Backdrop:</span>
               <input
                 type="color"
@@ -300,7 +296,7 @@ function App() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 shrink-0">
+          <div className="grid grid-cols-2 gap-4 shrink-0 mb-6">
             <button
               onClick={() => setState(prev => ({ ...prev, steps: prev.steps.map(s => ({ ...s, active: false })) }))}
               className="px-6 py-4 text-[11px] font-black border-2 border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-[24px] transition-all shadow-lg uppercase italic"
@@ -320,7 +316,7 @@ function App() {
               className="px-6 py-4 text-[11px] font-black border-2 rounded-[24px] transition-all shadow-lg uppercase italic hover:bg-white hover:text-black"
               style={{ borderColor: `${primaryColor}22`, color: textColor }}
             >
-              Randomize
+              Randomise
             </button>
           </div>
         </div>
@@ -411,7 +407,7 @@ function App() {
 
       {/* Footer */}
       <div className="pb-10 flex items-center gap-6 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
-        <span>Web Audio 2.5</span>
+        <span>Web Audio 2.6</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
         <span>High-Precision MIDI</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>

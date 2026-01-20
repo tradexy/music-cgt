@@ -1,0 +1,5 @@
+{
+  "name": "music-cgt",
+  "description": "A professional-grade, acid-style MIDI sequencer and synthesizer. Features a 16-step grid, pitch slides, accents, and robust external MIDI integration.",
+  "requestFramePermissions": []
+}

@@ -256,19 +256,21 @@ function App() {
         </div>
       )}
 
-      {/* Main Grid: 40 / 60 Split (Adjusted from 30/70 for Rectangular feel) */}
+      {/* Main Grid: 40 / 60 Split */}
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-12 flex-1 min-h-0 min-w-0 mb-8">
 
-        {/* Left Column: Sequencer (Wider Area with Padding) */}
-        <div className="flex flex-col gap-8 min-h-0">
-          <div className="bg-black/40 p-6 rounded-[40px] border shadow-2xl backdrop-blur-md overflow-hidden" style={{ borderColor: `${textColor}11` }}>
-            <SequencerGrid
-              steps={state.steps}
-              currentStep={state.currentStep}
-              onStepChange={handleStepChange}
-              accentColor={primaryColor}
-              textColor={textColor}
-            />
+        {/* Left Column: Sequencer (Symmetric with Right Column) */}
+        <div className="flex flex-col gap-8 max-h-[85vh] overflow-hidden">
+          <div className="flex-1 bg-black/40 p-6 rounded-[40px] border shadow-2xl backdrop-blur-md overflow-hidden flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 -mr-2">
+              <SequencerGrid
+                steps={state.steps}
+                currentStep={state.currentStep}
+                onStepChange={handleStepChange}
+                accentColor={primaryColor}
+                textColor={textColor}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 shrink-0">
@@ -382,7 +384,7 @@ function App() {
 
       {/* Footer */}
       <div className="pb-10 flex items-center gap-6 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
-        <span>Web Audio 2.3</span>
+        <span>Web Audio 2.4</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
         <span>High-Precision MIDI</span>
         <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>

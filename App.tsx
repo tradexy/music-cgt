@@ -39,6 +39,7 @@ function App() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [showThemeSettings, setShowThemeSettings] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [hasScrolled, setHasScrolled] = useState(false);
 
   const stateRef = useRef(state);
   useEffect(() => { stateRef.current = state; }, [state]);
@@ -53,8 +54,13 @@ function App() {
   const backdropColor = state.customBackdrop || currentTheme.backdrop;
   const textColor = state.customText || currentTheme.text;
 
-  // --- Keyboard Shortcuts ---
+  // --- Keyboard Shortcuts & Events ---
   useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 30) setHasScrolled(true);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       if (target.tagName === 'INPUT') return;
@@ -88,7 +94,6 @@ function App() {
     };
     window.addEventListener('keydown', handleKeyDown);
 
-    // PWA Install Prompt
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -98,6 +103,7 @@ function App() {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
@@ -180,6 +186,7 @@ function App() {
     <div
       className="min-h-screen flex flex-col items-center p-4 md:p-8 transition-colors duration-500 overflow-y-auto"
       style={{ backgroundColor: backdropColor }}
+      onScrollCapture={() => setHasScrolled(true)}
     >
 
       {/* Header */}
@@ -205,10 +212,10 @@ function App() {
           {deferredPrompt && (
             <button
               onClick={handleInstallClick}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg text-xs font-black uppercase transition-all border border-white/20 hover:bg-white/20"
-              style={{ color: textColor }}
+              className="flex items-center gap-3 px-6 py-3 rounded-full text-sm font-black uppercase transition-all shadow-xl hover:scale-105 active:scale-95 animate-pulse"
+              style={{ backgroundColor: primaryColor, color: backdropColor }}
             >
-              <Download size={16} /> Install
+              <Download size={20} /> Install App
             </button>
           )}
 
@@ -310,8 +317,8 @@ function App() {
         </div>
       )}
 
-      {/* Main Grid */}
-      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-8 lg:gap-12 flex-1 mb-8 min-h-0">
+      {/* Main Grid: Stacks on Mobile, Side-by-side on Desktop */}
+      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-8 lg:gap-12 flex-1 mb-8">
 
         {/* Left Column: Sequencer */}
         <div className="flex flex-col gap-6 lg:gap-8 lg:max-h-[85vh] min-h-0">
@@ -431,6 +438,15 @@ function App() {
         </div>
       </div>
 
+      {/* Mobile Scroll Hint */}
+      {!hasScrolled && (
+        <div className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-50 pointer-events-none animate-bounce">
+          <div className="bg-white/10 backdrop-blur-lg px-6 py-3 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest shadow-2xl" style={{ color: textColor }}>
+            Scroll for Sliders ↓
+          </div>
+        </div>
+      )}
+
       <InstructionsModal
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
@@ -441,7 +457,7 @@ function App() {
       {/* Footer */}
       <div className="py-10 flex flex-col items-center gap-4 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
         <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
-          <span>Web Audio 3.1</span>
+          <span>Web Audio 3.2</span>
           <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
           <span>High-Precision MIDI</span>
           <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>

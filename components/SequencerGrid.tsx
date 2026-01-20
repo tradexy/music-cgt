@@ -49,22 +49,31 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
                 const realNoteIndex = (NOTES.length - 1) - rowIdx;
                 const isActive = step.active && step.noteIndex === realNoteIndex;
                 const isCurrent = currentStep === colIdx;
+                const isLaneStart = colIdx % 4 === 0;
 
                 let cellClass = "h-6 w-full rounded-sm border transition-all duration-75 cursor-pointer hover:border-white/20 ";
 
-                const style: React.CSSProperties = { borderColor: `${textColor}11` };
+                const style: React.CSSProperties = {
+                  borderColor: isCurrent ? textColor : `${textColor}11`,
+                  borderWidth: '1px'
+                };
+
                 if (isActive) {
                   style.backgroundColor = accentColor;
-                  style.boxShadow = `0 0 10px ${accentColor}66`;
+                  style.boxShadow = `0 0 12px ${accentColor}88`;
                   style.borderColor = accentColor;
+                  style.transform = isCurrent ? 'scale(1.05)' : 'none';
                 } else {
-                  style.backgroundColor = `${textColor}08`; // Dynamic passive cell
+                  // Lane highlighting
+                  style.backgroundColor = isCurrent
+                    ? `${textColor}33` // Flash for empty cell
+                    : (isLaneStart ? `${textColor}0c` : `${textColor}05`);
                 }
 
                 if (isCurrent) {
-                  cellClass += "ring-2 z-10 ";
+                  cellClass += "ring-2 z-10 scale-[1.02] ";
                   style.ringColor = textColor;
-                  style.boxShadow = `0 0 20px ${textColor}33`; // Adaptive shadow
+                  style.boxShadow = `0 0 15px ${textColor}44`;
                 } else {
                   cellClass += "opacity-80 ";
                 }
@@ -94,9 +103,9 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
               key={`acc-${i}`}
               className="h-4 w-full rounded-sm border transition-all"
               style={{
-                backgroundColor: step.accent ? '#ff00ff' : 'rgba(255,255,255,0.03)',
-                borderColor: step.accent ? '#ff00ff' : `${textColor}11`,
-                boxShadow: step.accent ? '0 0 8px rgba(255,0,255,0.4)' : 'none',
+                backgroundColor: step.accent ? '#ff00ff' : (currentStep === i ? `${textColor}22` : 'rgba(255,255,255,0.03)'),
+                borderColor: step.accent ? '#ff00ff' : (currentStep === i ? textColor : `${textColor}11`),
+                boxShadow: step.accent ? '0 0 8px rgba(255,0,255,0.4)' : (currentStep === i ? `0 0 8px ${textColor}22` : 'none'),
                 opacity: currentStep === i ? 1 : 0.6
               }}
               onClick={() => onStepChange(i, { accent: !step.accent })}
@@ -112,9 +121,9 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
               key={`sld-${i}`}
               className="h-4 w-full rounded-sm border transition-all"
               style={{
-                backgroundColor: step.slide ? '#00ffff' : 'rgba(255,255,255,0.03)',
-                borderColor: step.slide ? '#00ffff' : `${textColor}11`,
-                boxShadow: step.slide ? '0 0 8px rgba(0,255,255,0.4)' : 'none',
+                backgroundColor: step.slide ? '#00ffff' : (currentStep === i ? `${textColor}22` : 'rgba(255,255,255,0.03)'),
+                borderColor: step.slide ? '#00ffff' : (currentStep === i ? textColor : `${textColor}11`),
+                boxShadow: step.slide ? '0 0 8px rgba(0,255,255,0.4)' : (currentStep === i ? `0 0 8px ${textColor}22` : 'none'),
                 opacity: currentStep === i ? 1 : 0.6
               }}
               onClick={() => onStepChange(i, { slide: !step.slide })}

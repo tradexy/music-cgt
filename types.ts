@@ -35,10 +35,11 @@ export interface SequencerState {
   decay: number;
   envMod: number;
   selectedMidiOutputId: string | null;
-  // v2.0 Theme State
+  // v2.1 Theme State
   themeName: string;
   customPrimary?: string;
   customBackdrop?: string;
+  customText?: string;
 }
 
 export const THEME_PRESETS: ThemePreset[] = [
@@ -47,7 +48,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     theme: {
       primary: '#39ff14', // Neon Green
       backdrop: '#1a1c23', // Deep Purple/Dark Gray
-      text: '#9ca3af',
+      text: '#ffffff',
       accent: '#ffffff'
     }
   },
@@ -56,7 +57,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     theme: {
       primary: '#e4e4e7', // Zinc 200
       backdrop: '#09090b', // Zinc 950
-      text: '#71717a',
+      text: '#a1a1aa',
       accent: '#3f3f46'
     }
   },
@@ -65,7 +66,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     theme: {
       primary: '#ffffff',
       backdrop: '#000000',
-      text: '#9ca3af',
+      text: '#ffffff',
       accent: '#4b5563'
     }
   },
@@ -74,7 +75,7 @@ export const THEME_PRESETS: ThemePreset[] = [
     theme: {
       primary: '#ff00ff', // Neon Pink
       backdrop: '#0a0a2e', // Deep Space Blue
-      text: '#64748b',
+      text: '#ffffff',
       accent: '#00ffff'
     }
   }

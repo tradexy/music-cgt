@@ -5,14 +5,16 @@ interface SequencerGridProps {
   steps: Step[];
   currentStep: number;
   onStepChange: (index: number, partial: Partial<Step>) => void;
-  accentColor?: string; // v2.0
+  accentColor?: string;
+  textColor?: string; // v2.1
 }
 
 export const SequencerGrid: React.FC<SequencerGridProps> = ({
   steps,
   currentStep,
   onStepChange,
-  accentColor = '#39ff14' // Default Acid green
+  accentColor = '#39ff14',
+  textColor = '#ffffff'
 }) => {
 
   // Inverse notes for display (High pitch top, Low pitch bottom)
@@ -29,11 +31,11 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   };
 
   return (
-    <div className="flex flex-col select-none bg-black/40 p-4 rounded-[28px] border border-white/5 shadow-inner backdrop-blur-md">
+    <div className="flex flex-col select-none bg-black/40 p-4 rounded-[28px] border shadow-inner backdrop-blur-md" style={{ borderColor: `${textColor}11` }}>
       {/* Note Grid */}
       <div className="grid grid-cols-[auto_repeat(16,1fr)] gap-1 mb-4">
         {/* Row Labels */}
-        <div className="flex flex-col justify-around text-[9px] font-bold text-gray-500 pr-2 pb-6">
+        <div className="flex flex-col justify-around text-[9px] font-bold pr-2 pb-6" style={{ color: textColor }}>
           {displayNotes.map((note) => (
             <div key={note.name} className="h-6 flex items-center justify-end uppercase tracking-tighter opacity-50">{note.name.replace('3', '')}</div>
           ))}
@@ -48,9 +50,9 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
                 const isActive = step.active && step.noteIndex === realNoteIndex;
                 const isCurrent = currentStep === colIdx;
 
-                let cellClass = "h-6 w-full rounded-sm border border-white/5 transition-all duration-75 cursor-pointer hover:border-white/20 ";
+                let cellClass = "h-6 w-full rounded-sm border transition-all duration-75 cursor-pointer hover:border-white/20 ";
 
-                const style: React.CSSProperties = {};
+                const style: React.CSSProperties = { borderColor: `${textColor}11` };
                 if (isActive) {
                   style.backgroundColor = accentColor;
                   style.boxShadow = `0 0 10px ${accentColor}66`;
@@ -60,7 +62,8 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
                 }
 
                 if (isCurrent) {
-                  cellClass += "ring-1 ring-white shadow-[0_0_15px_rgba(255,255,255,0.3)] z-10 ";
+                  cellClass += "ring-1 shadow-[0_0_15px_rgba(255,255,255,0.3)] z-10 ";
+                  style.ringColor = textColor;
                 } else {
                   cellClass += "opacity-80 ";
                 }
@@ -83,15 +86,15 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
       <div className="grid grid-cols-[auto_repeat(16,1fr)] gap-1 pl-6">
 
         {/* Accent Row */}
-        <div className="flex items-center justify-end pr-2 text-[8px] font-black text-white/40 uppercase tracking-tighter">ACCENT</div>
+        <div className="flex items-center justify-end pr-2 text-[8px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>ACCENT</div>
         <div className="col-span-16 grid grid-cols-16 gap-1">
           {steps.map((step, i) => (
             <button
               key={`acc-${i}`}
-              className="h-4 w-full rounded-sm border border-white/5 transition-all"
+              className="h-4 w-full rounded-sm border transition-all"
               style={{
                 backgroundColor: step.accent ? '#ff00ff' : 'rgba(255,255,255,0.03)',
-                borderColor: step.accent ? '#ff00ff' : 'transparent',
+                borderColor: step.accent ? '#ff00ff' : `${textColor}11`,
                 boxShadow: step.accent ? '0 0 8px rgba(255,0,255,0.4)' : 'none',
                 opacity: currentStep === i ? 1 : 0.6
               }}
@@ -101,15 +104,15 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
         </div>
 
         {/* Slide Row */}
-        <div className="flex items-center justify-end pr-2 text-[8px] font-black text-white/40 uppercase tracking-tighter mt-1">SLIDE</div>
+        <div className="flex items-center justify-end pr-2 text-[8px] font-black uppercase tracking-tighter mt-1 opacity-40" style={{ color: textColor }}>SLIDE</div>
         <div className="col-span-16 grid grid-cols-16 gap-1 mt-1">
           {steps.map((step, i) => (
             <button
               key={`sld-${i}`}
-              className="h-4 w-full rounded-sm border border-white/5 transition-all"
+              className="h-4 w-full rounded-sm border transition-all"
               style={{
                 backgroundColor: step.slide ? '#00ffff' : 'rgba(255,255,255,0.03)',
-                borderColor: step.slide ? '#00ffff' : 'transparent',
+                borderColor: step.slide ? '#00ffff' : `${textColor}11`,
                 boxShadow: step.slide ? '0 0 8px rgba(0,255,255,0.4)' : 'none',
                 opacity: currentStep === i ? 1 : 0.6
               }}

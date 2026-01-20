@@ -5,7 +5,7 @@ import { InstructionsModal } from './components/InstructionsModal';
 import { audioEngine } from './services/AudioEngine';
 import { midiService } from './services/MidiService';
 import { SequencerState, Step, NOTES, THEME_PRESETS } from './types';
-import { HelpCircle, Play, Square, Palette } from 'lucide-react';
+import { HelpCircle, Play, Square, Palette, Type } from 'lucide-react';
 
 // Constants
 const STEPS_PER_BAR = 16;
@@ -45,10 +45,11 @@ function App() {
   const currentStepRef = useRef(0);
   const timerIDRef = useRef<number | null>(null);
 
-  // --- Themes ---
+  // --- Themes & Global Uniformity ---
   const currentTheme = THEME_PRESETS.find(p => p.name === state.themeName)?.theme || THEME_PRESETS[0].theme;
   const primaryColor = state.customPrimary || currentTheme.primary;
   const backdropColor = state.customBackdrop || currentTheme.backdrop;
+  const textColor = state.customText || currentTheme.text; // Global Text Color
 
   // --- Keyboard Shortcuts ---
   useEffect(() => {
@@ -153,18 +154,19 @@ function App() {
     >
 
       {/* Header */}
-      <div className="w-full max-w-7xl mb-6 flex justify-between items-end border-b border-white/5 pb-4">
+      <div className="w-full max-w-7xl mb-6 flex justify-between items-end border-b pb-4" style={{ borderColor: `${textColor}11` }}>
         <div className="flex items-center gap-6">
           <div>
-            <h1 className="text-5xl font-black text-white tracking-tighter italic" style={{ color: primaryColor }}>
-              music<span className="text-white">-cgt</span>
+            <h1 className="text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
+              music<span style={{ color: textColor }}>-cgt</span>
             </h1>
-            <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-[0.3em] font-black">Professional Acid Engine</p>
+            <p className="text-[10px] mt-1 uppercase tracking-[0.3em] font-black opacity-50" style={{ color: textColor }}>Professional Acid Engine</p>
           </div>
 
           <button
             onClick={() => setIsHelpOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full text-[10px] font-black uppercase text-gray-400 hover:text-white transition-all border border-white/5 hover:border-white/20"
+            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full text-[10px] font-black uppercase transition-all border hover:bg-white/10"
+            style={{ color: textColor, borderColor: `${textColor}22` }}
           >
             <HelpCircle size={14} /> How to Use
           </button>
@@ -173,13 +175,15 @@ function App() {
         <div className="flex gap-4 items-center">
           <button
             onClick={() => setShowThemeSettings(!showThemeSettings)}
-            className="p-2 bg-white/5 rounded-lg border border-white/5 hover:border-white/20 transition-all text-gray-400 hover:text-white"
+            className="p-2 bg-white/5 rounded-lg border transition-all hover:bg-white/10"
+            style={{ color: textColor, borderColor: `${textColor}22` }}
           >
             <Palette size={18} />
           </button>
 
           <select
-            className="bg-black/40 border border-white/10 rounded-lg text-xs p-2.5 focus:border-white outline-none text-gray-300 font-bold"
+            className="bg-black/40 border rounded-lg text-xs p-2.5 focus:border-white outline-none font-bold"
+            style={{ color: textColor, borderColor: `${textColor}22` }}
             value={state.selectedMidiOutputId || ''}
             onChange={(e) => setState(prev => ({ ...prev, selectedMidiOutputId: e.target.value || null }))}
           >
@@ -193,15 +197,23 @@ function App() {
 
       {/* Theme Settings Bar */}
       {showThemeSettings && (
-        <div className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-6 p-4 bg-white/5 rounded-2xl border border-white/10 flex flex-wrap items-center gap-6 justify-between">
+        <div
+          className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-6 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-between"
+          style={{ borderColor: `${textColor}22` }}
+        >
           <div className="flex items-center gap-4">
-            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Presets:</span>
+            <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Presets:</span>
             <div className="flex gap-2">
               {THEME_PRESETS.map(p => (
                 <button
                   key={p.name}
-                  onClick={() => setState(prev => ({ ...prev, themeName: p.name, customPrimary: undefined, customBackdrop: undefined }))}
-                  className={`px-3 py-1 text-[10px] font-black rounded-full border transition-all ${state.themeName === p.name ? 'border-white text-white' : 'border-white/10 text-gray-600 hover:text-gray-400'}`}
+                  onClick={() => setState(prev => ({ ...prev, themeName: p.name, customPrimary: undefined, customBackdrop: undefined, customText: undefined }))}
+                  className={`px-3 py-1 text-[10px] font-black rounded-full border transition-all ${state.themeName === p.name ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                  style={{
+                    color: textColor,
+                    borderColor: state.themeName === p.name ? textColor : `${textColor}33`,
+                    backgroundColor: state.themeName === p.name ? `${textColor}11` : 'transparent'
+                  }}
                 >
                   {p.name}
                 </button>
@@ -210,8 +222,9 @@ function App() {
           </div>
 
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Main Color:</span>
+            <div className="flex items-center gap-2">
+              <Palette size={14} style={{ color: textColor }} />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Primary:</span>
               <input
                 type="color"
                 value={primaryColor}
@@ -219,12 +232,23 @@ function App() {
                 className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
               />
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Background:</span>
+            <div className="flex items-center gap-2">
+              <Palette size={14} style={{ color: textColor }} />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Backdrop:</span>
               <input
                 type="color"
                 value={backdropColor}
                 onChange={(e) => setState(prev => ({ ...prev, customBackdrop: e.target.value }))}
+                className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Type size={14} style={{ color: textColor }} />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Text:</span>
+              <input
+                type="color"
+                value={textColor}
+                onChange={(e) => setState(prev => ({ ...prev, customText: e.target.value }))}
                 className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
               />
             </div>
@@ -235,14 +259,15 @@ function App() {
       {/* Main Grid: 30 / 70 Split */}
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8">
 
-        {/* Left Column: Sequencer (Compact area) */}
+        {/* Left Column: Sequencer */}
         <div className="flex flex-col gap-6">
-          <div className="bg-black/40 p-1.5 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md">
+          <div className="bg-black/40 p-1.5 rounded-3xl border shadow-2xl backdrop-blur-md" style={{ borderColor: `${textColor}11` }}>
             <SequencerGrid
               steps={state.steps}
               currentStep={state.currentStep}
               onStepChange={handleStepChange}
               accentColor={primaryColor}
+              textColor={textColor}
             />
           </div>
 
@@ -263,23 +288,23 @@ function App() {
                   }))
                 }));
               }}
-              className="px-6 py-3 text-[10px] font-black border-2 border-white/5 text-gray-400 hover:bg-white hover:text-black rounded-2xl transition-all shadow-lg uppercase italic"
-              style={{ borderColor: `${primaryColor}22` }}
+              className="px-6 py-3 text-[10px] font-black border-2 rounded-2xl transition-all shadow-lg uppercase italic hover:bg-white hover:text-black"
+              style={{ borderColor: `${primaryColor}22`, color: textColor }}
             >
               Randomize
             </button>
           </div>
         </div>
 
-        {/* Right Column: Integrated Controls (Focus area) */}
-        <div className="bg-white/5 p-8 rounded-[40px] border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-10">
+        {/* Right Column: Integrated Controls */}
+        <div className="bg-white/5 p-8 rounded-[40px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-10" style={{ borderColor: `${textColor}11` }}>
 
           {/* Top Row: Play & Waveform */}
           <div className="flex items-stretch gap-6 h-28">
             <button
               onClick={togglePlay}
               className="flex-[2] rounded-[30px] flex items-center justify-center transition-all shadow-2xl hover:scale-[1.01] active:scale-[0.98]"
-              style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: state.isPlaying ? '#fff' : '#000' }}
+              style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: (state.isPlaying || primaryColor !== '#ffffff') ? '#fff' : '#000' }}
             >
               {state.isPlaying ? (
                 <div className="flex items-center gap-4 font-black italic text-3xl uppercase tracking-tighter"><Square size={32} fill="currentColor" /> Stop</div>
@@ -288,17 +313,17 @@ function App() {
               )}
             </button>
 
-            <div className="flex-1 bg-black/40 rounded-[30px] flex p-1.5 border border-white/5">
+            <div className="flex-1 bg-black/40 rounded-[30px] flex p-1.5 border" style={{ borderColor: `${textColor}11` }}>
               <button
-                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all ${state.waveform === 'sawtooth' ? 'bg-white/10 shadow-inner' : 'text-gray-500'}`}
-                style={{ color: state.waveform === 'sawtooth' ? primaryColor : undefined }}
+                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all ${state.waveform === 'sawtooth' ? 'bg-white/10 shadow-inner' : 'opacity-40'}`}
+                style={{ color: state.waveform === 'sawtooth' ? primaryColor : textColor }}
                 onClick={() => setState(p => ({ ...p, waveform: 'sawtooth' }))}
               >
                 SAW (I)
               </button>
               <button
-                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all ${state.waveform === 'square' ? 'bg-white/10 shadow-inner' : 'text-gray-500'}`}
-                style={{ color: state.waveform === 'square' ? primaryColor : undefined }}
+                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all ${state.waveform === 'square' ? 'bg-white/10 shadow-inner' : 'opacity-40'}`}
+                style={{ color: state.waveform === 'square' ? primaryColor : textColor }}
                 onClick={() => setState(p => ({ ...p, waveform: 'square' }))}
               >
                 SQR (O)
@@ -307,32 +332,32 @@ function App() {
           </div>
 
           {/* Main Area: Spaced Out Vertical Sliders */}
-          <div className="flex-1 bg-black/30 p-10 rounded-[40px] border border-white/5 flex justify-between gap-6 overflow-hidden min-h-[450px]">
+          <div className="flex-1 bg-black/30 p-10 rounded-[40px] border flex justify-between gap-6 overflow-hidden min-h-[450px]" style={{ borderColor: `${textColor}11` }}>
             <VerticalSlider
               label="Tempo" value={state.bpm} min={20} max={300}
               onChange={(v) => setState(p => ({ ...p, bpm: v }))}
-              color="#fff" shortcut="Q/A"
+              color="#fff" textColor={textColor} shortcut="Q/A"
             />
-            <div className="w-px bg-white/5 h-full mx-2"></div>
+            <div className="w-px h-full mx-2" style={{ backgroundColor: `${textColor}11` }}></div>
             <VerticalSlider
               label="Cutoff" value={state.cutoff} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, cutoff: v }))}
-              color={primaryColor} shortcut="W/S"
+              color={primaryColor} textColor={textColor} shortcut="W/S"
             />
             <VerticalSlider
               label="Reson" value={state.resonance} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, resonance: v }))}
-              color={primaryColor} shortcut="E/D"
+              color={primaryColor} textColor={textColor} shortcut="E/D"
             />
             <VerticalSlider
               label="Env Mod" value={state.envMod} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, envMod: v }))}
-              color={primaryColor} shortcut="R/F"
+              color={primaryColor} textColor={textColor} shortcut="R/F"
             />
             <VerticalSlider
               label="Decay" value={state.decay} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, decay: v }))}
-              color={primaryColor} shortcut="T/G"
+              color={primaryColor} textColor={textColor} shortcut="T/G"
             />
           </div>
 
@@ -343,13 +368,14 @@ function App() {
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
         primaryColor={primaryColor}
+        textColor={textColor}
       />
 
-      <div className="mt-8 flex items-center gap-6 text-[9px] text-gray-700 font-black tracking-[0.3em] uppercase">
-        <span>Web Audio 2.0</span>
-        <div className="w-1.5 h-1.5 bg-gray-800 rounded-full"></div>
+      <div className="mt-8 flex items-center gap-6 text-[9px] font-black tracking-[0.3em] uppercase opacity-40" style={{ color: textColor }}>
+        <span>Web Audio 2.1</span>
+        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
         <span>High-Precision MIDI</span>
-        <div className="w-1.5 h-1.5 bg-gray-800 rounded-full"></div>
+        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
         <span>{state.themeName} Edition</span>
       </div>
     </div>

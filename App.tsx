@@ -5,7 +5,7 @@ import { InstructionsModal } from './components/InstructionsModal';
 import { audioEngine } from './services/AudioEngine';
 import { midiService } from './services/MidiService';
 import { SequencerState, Step, NOTES, THEME_PRESETS } from './types';
-import { HelpCircle, Play, Square, Settings, Type, Zap } from 'lucide-react';
+import { HelpCircle, Play, Square, Settings, Type, Zap, Download } from 'lucide-react';
 
 // Constants
 const STEPS_PER_BAR = 16;
@@ -38,6 +38,7 @@ function App() {
   const [midiOutputs, setMidiOutputs] = useState<{ id: string; name: string }[]>([]);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [showThemeSettings, setShowThemeSettings] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   const stateRef = useRef(state);
   useEffect(() => { stateRef.current = state; }, [state]);
@@ -86,8 +87,28 @@ function App() {
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    // PWA Install Prompt
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   // --- Initialization ---
   useEffect(() => {
@@ -181,6 +202,16 @@ function App() {
         </div>
 
         <div className="flex gap-4 items-center">
+          {deferredPrompt && (
+            <button
+              onClick={handleInstallClick}
+              className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-lg text-xs font-black uppercase transition-all border border-white/20 hover:bg-white/20"
+              style={{ color: textColor }}
+            >
+              <Download size={16} /> Install
+            </button>
+          )}
+
           <button
             onClick={() => setShowThemeSettings(!showThemeSettings)}
             className="p-2 bg-white/5 rounded-lg border transition-all hover:bg-white/10"
@@ -279,13 +310,13 @@ function App() {
         </div>
       )}
 
-      {/* Main Grid: Stacks on Mobile, Side-by-side on Desktop */}
-      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-8 lg:gap-12 flex-1 mb-8">
+      {/* Main Grid */}
+      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-8 lg:gap-12 flex-1 mb-8 min-h-0">
 
         {/* Left Column: Sequencer */}
         <div className="flex flex-col gap-6 lg:gap-8 lg:max-h-[85vh] min-h-0">
-          <div className="flex-1 bg-black/40 p-4 md:p-6 rounded-[30px] md:rounded-[40px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
-            <div className="overflow-x-auto custom-scrollbar md:overflow-x-visible">
+          <div className="flex-1 bg-black/40 p-4 md:p-6 rounded-[30px] md:rounded-[40px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0 overflow-hidden" style={{ borderColor: `${textColor}11` }}>
+            <div className="flex-1 overflow-y-auto custom-scrollbar md:pr-2">
               <div className="min-w-[400px] md:min-w-0">
                 <SequencerGrid
                   steps={state.steps}
@@ -325,7 +356,7 @@ function App() {
 
         {/* Right Column: Integrated Controls */}
         <div
-          className="bg-white/5 p-6 md:p-8 rounded-[30px] md:rounded-[40px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-8 md:gap-10 lg:max-h-[85vh]"
+          className="bg-white/5 p-6 md:p-8 rounded-[30px] md:rounded-[40px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-8 md:gap-10 lg:max-h-[85vh] shrink-0 lg:shrink"
           style={{ borderColor: `${textColor}11` }}
         >
 
@@ -408,14 +439,17 @@ function App() {
       />
 
       {/* Footer */}
-      <div className="py-10 flex flex-wrap justify-center items-center gap-4 md:gap-6 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
-        <span>Web Audio 3.0</span>
-        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
-        <span>High-Precision MIDI</span>
-        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
-        <span>{state.themeName} Edition</span>
-        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
-        <span className="flex items-center gap-1"><Zap size={10} /> Speed {state.controlSpeed}</span>
+      <div className="py-10 flex flex-col items-center gap-4 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
+        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
+          <span>Web Audio 3.1</span>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
+          <span>High-Precision MIDI</span>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
+          <span>{state.themeName} Edition</span>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
+          <span className="flex items-center gap-1"><Zap size={10} /> Speed {state.controlSpeed}</span>
+        </div>
+        <p className="opacity-60 lowercase tracking-normal font-medium">iOS: Tap Share {'->'} Add to Home Screen</p>
       </div>
     </div>
   );

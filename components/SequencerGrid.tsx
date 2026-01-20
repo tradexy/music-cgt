@@ -5,25 +5,22 @@ interface SequencerGridProps {
   steps: Step[];
   currentStep: number;
   onStepChange: (index: number, partial: Partial<Step>) => void;
+  accentColor?: string; // v2.0
 }
 
-export const SequencerGrid: React.FC<SequencerGridProps> = ({ steps, currentStep, onStepChange }) => {
-  
+export const SequencerGrid: React.FC<SequencerGridProps> = ({
+  steps,
+  currentStep,
+  onStepChange,
+  accentColor = '#39ff14' // Default Acid green
+}) => {
+
   // Inverse notes for display (High pitch top, Low pitch bottom)
   const displayNotes = [...NOTES].reverse();
 
   const handleGridClick = (stepIndex: number, noteIndex: number) => {
-    // Note Index in displayNotes is reversed, need to map back to real index
-    // Real Index 0 = C3, 12 = C4
-    // Display Index 0 = C4, 12 = C3
     const realNoteIndex = (NOTES.length - 1) - noteIndex;
-
     const step = steps[stepIndex];
-    
-    // If clicking the same active note, toggle off.
-    // If clicking a different note, move the note.
-    // If inactive, turn on at that note.
-    
     if (step.active && step.noteIndex === realNoteIndex) {
       onStepChange(stepIndex, { active: false });
     } else {
@@ -32,13 +29,13 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({ steps, currentStep
   };
 
   return (
-    <div className="flex flex-col select-none bg-acid-800 p-4 rounded-lg border border-acid-700 shadow-2xl">
+    <div className="flex flex-col select-none bg-black/40 p-4 rounded-[28px] border border-white/5 shadow-inner backdrop-blur-md">
       {/* Note Grid */}
       <div className="grid grid-cols-[auto_repeat(16,1fr)] gap-1 mb-4">
         {/* Row Labels */}
-        <div className="flex flex-col justify-around text-xs text-gray-500 pr-2 pb-6">
-          {displayNotes.map((note, i) => (
-             <div key={note.name} className="h-6 flex items-center justify-end">{note.name.replace('3','')}</div>
+        <div className="flex flex-col justify-around text-[9px] font-bold text-gray-500 pr-2 pb-6">
+          {displayNotes.map((note) => (
+            <div key={note.name} className="h-6 flex items-center justify-end uppercase tracking-tighter opacity-50">{note.name.replace('3', '')}</div>
           ))}
         </div>
 
@@ -50,26 +47,29 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({ steps, currentStep
                 const realNoteIndex = (NOTES.length - 1) - rowIdx;
                 const isActive = step.active && step.noteIndex === realNoteIndex;
                 const isCurrent = currentStep === colIdx;
-                
-                let cellClass = "h-6 w-full rounded-sm border border-acid-700 transition-colors duration-75 cursor-pointer hover:border-acid-500 ";
-                
+
+                let cellClass = "h-6 w-full rounded-sm border border-white/5 transition-all duration-75 cursor-pointer hover:border-white/20 ";
+
+                const style: React.CSSProperties = {};
                 if (isActive) {
-                    cellClass += "bg-acid-green shadow-[0_0_8px_rgba(57,255,20,0.6)] border-acid-green ";
+                  style.backgroundColor = accentColor;
+                  style.boxShadow = `0 0 10px ${accentColor}66`;
+                  style.borderColor = accentColor;
                 } else {
-                    cellClass += "bg-acid-900 ";
+                  cellClass += "bg-white/[0.03] ";
                 }
 
                 if (isCurrent) {
-                    cellClass += "opacity-100 ring-1 ring-white/50 ";
-                    if (!isActive) cellClass += "bg-white/10 ";
+                  cellClass += "ring-1 ring-white shadow-[0_0_15px_rgba(255,255,255,0.3)] z-10 ";
                 } else {
-                    cellClass += "opacity-80 ";
+                  cellClass += "opacity-80 ";
                 }
 
                 return (
                   <div
                     key={`${rowIdx}-${colIdx}`}
                     className={cellClass}
+                    style={style}
                     onClick={() => handleGridClick(colIdx, rowIdx)}
                   />
                 );
@@ -80,35 +80,39 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({ steps, currentStep
       </div>
 
       {/* Control Rows (Accent, Slide) */}
-      <div className="grid grid-cols-[auto_repeat(16,1fr)] gap-1 pl-6"> {/* Padding left to align with grid cols */}
-        
+      <div className="grid grid-cols-[auto_repeat(16,1fr)] gap-1 pl-6">
+
         {/* Accent Row */}
-        <div className="flex items-center justify-end pr-2 text-xs font-bold text-acid-pink">ACC</div>
+        <div className="flex items-center justify-end pr-2 text-[8px] font-black text-white/40 uppercase tracking-tighter">ACCENT</div>
         <div className="col-span-16 grid grid-cols-16 gap-1">
           {steps.map((step, i) => (
             <button
               key={`acc-${i}`}
-              className={`h-4 w-full rounded-sm border ${
-                step.accent 
-                  ? 'bg-acid-pink border-acid-pink shadow-[0_0_5px_#ff00ff]' 
-                  : 'bg-acid-900 border-acid-700 text-gray-600'
-              } ${currentStep === i ? 'brightness-150' : ''}`}
+              className="h-4 w-full rounded-sm border border-white/5 transition-all"
+              style={{
+                backgroundColor: step.accent ? '#ff00ff' : 'rgba(255,255,255,0.03)',
+                borderColor: step.accent ? '#ff00ff' : 'transparent',
+                boxShadow: step.accent ? '0 0 8px rgba(255,0,255,0.4)' : 'none',
+                opacity: currentStep === i ? 1 : 0.6
+              }}
               onClick={() => onStepChange(i, { accent: !step.accent })}
             />
           ))}
         </div>
 
         {/* Slide Row */}
-        <div className="flex items-center justify-end pr-2 text-xs font-bold text-acid-yellow">SLIDE</div>
+        <div className="flex items-center justify-end pr-2 text-[8px] font-black text-white/40 uppercase tracking-tighter mt-1">SLIDE</div>
         <div className="col-span-16 grid grid-cols-16 gap-1 mt-1">
           {steps.map((step, i) => (
             <button
               key={`sld-${i}`}
-              className={`h-4 w-full rounded-sm border ${
-                step.slide 
-                  ? 'bg-acid-yellow border-acid-yellow shadow-[0_0_5px_#ffff00]' 
-                  : 'bg-acid-900 border-acid-700 text-gray-600'
-              } ${currentStep === i ? 'brightness-150' : ''}`}
+              className="h-4 w-full rounded-sm border border-white/5 transition-all"
+              style={{
+                backgroundColor: step.slide ? '#00ffff' : 'rgba(255,255,255,0.03)',
+                borderColor: step.slide ? '#00ffff' : 'transparent',
+                boxShadow: step.slide ? '0 0 8px rgba(0,255,255,0.4)' : 'none',
+                opacity: currentStep === i ? 1 : 0.6
+              }}
               onClick={() => onStepChange(i, { slide: !step.slide })}
             />
           ))}

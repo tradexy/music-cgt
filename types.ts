@@ -12,6 +12,18 @@ export interface Step {
 
 export type Scale = Note[];
 
+export interface Theme {
+  primary: string;    // CSS/Tailwind color for buttons, sequencer, sliders
+  backdrop: string;   // CSS/Tailwind color for the main background
+  text: string;       // Color for labels
+  accent: string;     // Color for the active step/play button highlight
+}
+
+export interface ThemePreset {
+  name: string;
+  theme: Theme;
+}
+
 export interface SequencerState {
   bpm: number;
   isPlaying: boolean;
@@ -23,7 +35,50 @@ export interface SequencerState {
   decay: number;
   envMod: number;
   selectedMidiOutputId: string | null;
+  // v2.0 Theme State
+  themeName: string;
+  customPrimary?: string;
+  customBackdrop?: string;
 }
+
+export const THEME_PRESETS: ThemePreset[] = [
+  {
+    name: 'Acid',
+    theme: {
+      primary: '#39ff14', // Neon Green
+      backdrop: '#1a1c23', // Deep Purple/Dark Gray
+      text: '#9ca3af',
+      accent: '#ffffff'
+    }
+  },
+  {
+    name: 'Midnight',
+    theme: {
+      primary: '#e4e4e7', // Zinc 200
+      backdrop: '#09090b', // Zinc 950
+      text: '#71717a',
+      accent: '#3f3f46'
+    }
+  },
+  {
+    name: 'Classic',
+    theme: {
+      primary: '#ffffff',
+      backdrop: '#000000',
+      text: '#9ca3af',
+      accent: '#4b5563'
+    }
+  },
+  {
+    name: 'Cyber',
+    theme: {
+      primary: '#ff00ff', // Neon Pink
+      backdrop: '#0a0a2e', // Deep Space Blue
+      text: '#64748b',
+      accent: '#00ffff'
+    }
+  }
+];
 
 export const NOTES: Note[] = [
   { name: 'C3', midi: 48 },

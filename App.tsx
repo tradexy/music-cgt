@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { SequencerGrid } from './components/SequencerGrid';
 import { VerticalSlider } from './components/VerticalSlider';
+import { InstructionsModal } from './components/InstructionsModal';
 import { audioEngine } from './services/AudioEngine';
 import { midiService } from './services/MidiService';
-import { SequencerState, Step, NOTES } from './types';
+import { SequencerState, Step, NOTES, THEME_PRESETS } from './types';
+import { HelpCircle, Play, Square, Palette } from 'lucide-react';
 
 // Constants
 const STEPS_PER_BAR = 16;
-const SCHEDULE_AHEAD_TIME = 0.1; // seconds
-const LOOKAHEAD = 25.0; // milliseconds
+const SCHEDULE_AHEAD_TIME = 0.1;
+const LOOKAHEAD = 25.0;
 
-// Initial Pattern
 const INITIAL_STEPS: Step[] = Array(STEPS_PER_BAR).fill(null).map((_, i) => ({
-  active: i % 4 === 0, // simple 4/4 beat start
-  noteIndex: 0, // C3
+  active: i % 4 === 0,
+  noteIndex: 0,
   accent: false,
   slide: false,
 }));
 
 function App() {
-  // --- State ---
   const [state, setState] = useState<SequencerState>({
     bpm: 120,
     isPlaying: false,
@@ -31,11 +31,13 @@ function App() {
     decay: 40,
     envMod: 70,
     selectedMidiOutputId: null,
+    themeName: 'Acid',
   });
 
   const [midiOutputs, setMidiOutputs] = useState<{ id: string; name: string }[]>([]);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [showThemeSettings, setShowThemeSettings] = useState(false);
 
-  // --- Refs for Scheduler & Shortcuts ---
   const stateRef = useRef(state);
   useEffect(() => { stateRef.current = state; }, [state]);
 
@@ -43,45 +45,37 @@ function App() {
   const currentStepRef = useRef(0);
   const timerIDRef = useRef<number | null>(null);
 
+  // --- Themes ---
+  const currentTheme = THEME_PRESETS.find(p => p.name === state.themeName)?.theme || THEME_PRESETS[0].theme;
+  const primaryColor = state.customPrimary || currentTheme.primary;
+  const backdropColor = state.customBackdrop || currentTheme.backdrop;
+
   // --- Keyboard Shortcuts ---
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const key = e.key.toLowerCase();
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT') return;
 
-      // Control Increments
+      const key = e.key.toLowerCase();
       const stepSize = 2;
       const bpmStepSize = 1;
 
       switch (key) {
-        // Tempo: Q/A
         case 'q': setState(prev => ({ ...prev, bpm: Math.min(300, prev.bpm + bpmStepSize) })); break;
         case 'a': setState(prev => ({ ...prev, bpm: Math.max(20, prev.bpm - bpmStepSize) })); break;
-
-        // Cutoff: W/S
         case 'w': setState(prev => ({ ...prev, cutoff: Math.min(100, prev.cutoff + stepSize) })); break;
         case 's': setState(prev => ({ ...prev, cutoff: Math.max(0, prev.cutoff - stepSize) })); break;
-
-        // Resonance: E/D
         case 'e': setState(prev => ({ ...prev, resonance: Math.min(100, prev.resonance + stepSize) })); break;
         case 'd': setState(prev => ({ ...prev, resonance: Math.max(0, prev.resonance - stepSize) })); break;
-
-        // Env Mod: R/F
         case 'r': setState(prev => ({ ...prev, envMod: Math.min(100, prev.envMod + stepSize) })); break;
         case 'f': setState(prev => ({ ...prev, envMod: Math.max(0, prev.envMod - stepSize) })); break;
-
-        // Decay: T/G
         case 't': setState(prev => ({ ...prev, decay: Math.min(100, prev.decay + stepSize) })); break;
         case 'g': setState(prev => ({ ...prev, decay: Math.max(0, prev.decay - stepSize) })); break;
-
-        // Waveform: I/O
         case 'i': setState(prev => ({ ...prev, waveform: 'sawtooth' })); break;
         case 'o': setState(prev => ({ ...prev, waveform: 'square' })); break;
-
-        // Play: P
         case 'p': togglePlay(); break;
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
@@ -105,23 +99,20 @@ function App() {
   const scheduleNote = useCallback((stepNumber: number, time: number) => {
     const s = stateRef.current;
     const step = s.steps[stepNumber];
-
     if (step.active) {
       const duration = (60.0 / s.bpm) / 4;
       audioEngine.scheduleNote(
         step.noteIndex, time, duration, step.slide, step.accent,
         s.waveform, s.cutoff, s.resonance, s.decay, s.envMod
       );
-
       if (s.selectedMidiOutputId) {
         const midiNote = NOTES[step.noteIndex].midi;
         const velocity = step.accent ? 127 : 100;
         const audioCtx = audioEngine.getContext();
         const performanceTime = performance.now() + ((time - audioCtx.currentTime) * 1000);
-        const safeTime = Math.max(performance.now(), performanceTime);
-        midiService.sendNoteOn(s.selectedMidiOutputId, midiNote, velocity, safeTime);
+        midiService.sendNoteOn(s.selectedMidiOutputId, midiNote, velocity, Math.max(performance.now(), performanceTime));
         const noteOffDelay = step.slide ? duration * 1.1 : duration * 0.9;
-        midiService.sendNoteOff(s.selectedMidiOutputId, midiNote, safeTime + (noteOffDelay * 1000));
+        midiService.sendNoteOff(s.selectedMidiOutputId, midiNote, Math.max(performance.now(), performanceTime) + (noteOffDelay * 1000));
       }
     }
   }, []);
@@ -135,8 +126,7 @@ function App() {
   }, [nextNote, scheduleNote]);
 
   const togglePlay = async () => {
-    const isCurrentlyPlaying = stateRef.current.isPlaying;
-    if (isCurrentlyPlaying) {
+    if (stateRef.current.isPlaying) {
       if (timerIDRef.current) window.clearTimeout(timerIDRef.current);
       setState(prev => ({ ...prev, isPlaying: false, currentStep: 0 }));
       currentStepRef.current = 0;
@@ -157,26 +147,43 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-acid-900 via-black to-acid-800 text-white overflow-hidden">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-500 overflow-hidden"
+      style={{ backgroundColor: backdropColor }}
+    >
 
       {/* Header */}
-      <div className="w-full max-w-7xl mb-6 flex justify-between items-end border-b border-acid-700/50 pb-4">
-        <div>
-          <h1 className="text-5xl font-black text-white tracking-tighter italic">
-            music<span className="text-acid-green">-cgt</span>
-          </h1>
-          <p className="text-xs text-acid-green/50 mt-1 uppercase tracking-[0.2em] font-bold">Pure Acid Bassline</p>
-        </div>
-        <div className="flex gap-4 items-center">
-          <div className="text-[10px] text-gray-500 font-bold uppercase mr-2 tracking-widest bg-gray-900 border border-gray-800 px-3 py-1 rounded-full">
-            P: Play/Pause | I/O: Waveform
+      <div className="w-full max-w-7xl mb-6 flex justify-between items-end border-b border-white/5 pb-4">
+        <div className="flex items-center gap-6">
+          <div>
+            <h1 className="text-5xl font-black text-white tracking-tighter italic" style={{ color: primaryColor }}>
+              music<span className="text-white">-cgt</span>
+            </h1>
+            <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-[0.3em] font-black">Professional Acid Engine</p>
           </div>
+
+          <button
+            onClick={() => setIsHelpOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full text-[10px] font-black uppercase text-gray-400 hover:text-white transition-all border border-white/5 hover:border-white/20"
+          >
+            <HelpCircle size={14} /> How to Use
+          </button>
+        </div>
+
+        <div className="flex gap-4 items-center">
+          <button
+            onClick={() => setShowThemeSettings(!showThemeSettings)}
+            className="p-2 bg-white/5 rounded-lg border border-white/5 hover:border-white/20 transition-all text-gray-400 hover:text-white"
+          >
+            <Palette size={18} />
+          </button>
+
           <select
-            className="bg-acid-800 border border-acid-700 rounded text-xs p-2 focus:border-acid-green outline-none"
+            className="bg-black/40 border border-white/10 rounded-lg text-xs p-2.5 focus:border-white outline-none text-gray-300 font-bold"
             value={state.selectedMidiOutputId || ''}
             onChange={(e) => setState(prev => ({ ...prev, selectedMidiOutputId: e.target.value || null }))}
           >
-            <option value="">-- Internal Audio Only --</option>
+            <option value="">-- Internal Audio --</option>
             {midiOutputs.map(o => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
@@ -184,24 +191,67 @@ function App() {
         </div>
       </div>
 
-      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-8">
+      {/* Theme Settings Bar */}
+      {showThemeSettings && (
+        <div className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-6 p-4 bg-white/5 rounded-2xl border border-white/10 flex flex-wrap items-center gap-6 justify-between">
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Presets:</span>
+            <div className="flex gap-2">
+              {THEME_PRESETS.map(p => (
+                <button
+                  key={p.name}
+                  onClick={() => setState(prev => ({ ...prev, themeName: p.name, customPrimary: undefined, customBackdrop: undefined }))}
+                  className={`px-3 py-1 text-[10px] font-black rounded-full border transition-all ${state.themeName === p.name ? 'border-white text-white' : 'border-white/10 text-gray-600 hover:text-gray-400'}`}
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        {/* Left Column: Sequencer */}
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Main Color:</span>
+              <input
+                type="color"
+                value={primaryColor}
+                onChange={(e) => setState(prev => ({ ...prev, customPrimary: e.target.value }))}
+                className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
+              />
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Background:</span>
+              <input
+                type="color"
+                value={backdropColor}
+                onChange={(e) => setState(prev => ({ ...prev, customBackdrop: e.target.value }))}
+                className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Grid: 30 / 70 Split */}
+      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-8">
+
+        {/* Left Column: Sequencer (Compact area) */}
         <div className="flex flex-col gap-6">
-          <div className="bg-black/40 p-1 rounded-2xl border border-white/5 shadow-2xl backdrop-blur-sm">
+          <div className="bg-black/40 p-1.5 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md">
             <SequencerGrid
               steps={state.steps}
               currentStep={state.currentStep}
               onStepChange={handleStepChange}
+              accentColor={primaryColor}
             />
           </div>
 
-          <div className="flex gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => setState(prev => ({ ...prev, steps: prev.steps.map(s => ({ ...s, active: false })) }))}
-              className="px-6 py-3 text-xs font-black border-2 border-red-900/50 text-red-500 hover:bg-red-900/20 rounded-xl transition-all shadow-lg hover:shadow-red-500/20"
+              className="px-6 py-3 text-[10px] font-black border-2 border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all shadow-lg uppercase italic"
             >
-              CLEAR
+              Clear Pattern
             </button>
             <button
               onClick={() => {
@@ -213,41 +263,42 @@ function App() {
                   }))
                 }));
               }}
-              className="px-6 py-3 text-xs font-black border-2 border-acid-700 text-acid-accent hover:bg-white hover:text-black rounded-xl transition-all shadow-lg"
+              className="px-6 py-3 text-[10px] font-black border-2 border-white/5 text-gray-400 hover:bg-white hover:text-black rounded-2xl transition-all shadow-lg uppercase italic"
+              style={{ borderColor: `${primaryColor}22` }}
             >
-              RANDOMIZE
+              Randomize
             </button>
           </div>
         </div>
 
-        {/* Right Column: Integrated Controls */}
-        <div className="bg-acid-800/80 p-6 rounded-3xl border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] backdrop-blur-md flex flex-col gap-8">
+        {/* Right Column: Integrated Controls (Focus area) */}
+        <div className="bg-white/5 p-8 rounded-[40px] border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-10">
 
           {/* Top Row: Play & Waveform */}
-          <div className="flex items-stretch gap-4 h-24">
+          <div className="flex items-stretch gap-6 h-28">
             <button
               onClick={togglePlay}
-              className={`flex-1 rounded-2xl flex items-center justify-center transition-all ${state.isPlaying
-                  ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)]'
-                  : 'bg-acid-green text-black shadow-[0_0_20px_rgba(57,255,20,0.4)] hover:scale-[1.02]'
-                }`}
+              className="flex-[2] rounded-[30px] flex items-center justify-center transition-all shadow-2xl hover:scale-[1.01] active:scale-[0.98]"
+              style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: state.isPlaying ? '#fff' : '#000' }}
             >
               {state.isPlaying ? (
-                <div className="flex items-center gap-2 font-black italic text-xl"><Square size={24} fill="currentColor" /> STOP</div>
+                <div className="flex items-center gap-4 font-black italic text-3xl uppercase tracking-tighter"><Square size={32} fill="currentColor" /> Stop</div>
               ) : (
-                <div className="flex items-center gap-2 font-black italic text-xl"><Play size={24} fill="currentColor" /> PLAY</div>
+                <div className="flex items-center gap-4 font-black italic text-3xl uppercase tracking-tighter"><Play size={32} fill="currentColor" /> Play</div>
               )}
             </button>
 
-            <div className="w-32 bg-black/40 rounded-2xl flex flex-col p-1 border border-white/5">
+            <div className="flex-1 bg-black/40 rounded-[30px] flex p-1.5 border border-white/5">
               <button
-                className={`flex-1 flex items-center justify-center text-[10px] font-black rounded-xl transition-all ${state.waveform === 'sawtooth' ? 'bg-acid-700 text-acid-green shadow-inner' : 'text-gray-500'}`}
+                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all ${state.waveform === 'sawtooth' ? 'bg-white/10 shadow-inner' : 'text-gray-500'}`}
+                style={{ color: state.waveform === 'sawtooth' ? primaryColor : undefined }}
                 onClick={() => setState(p => ({ ...p, waveform: 'sawtooth' }))}
               >
                 SAW (I)
               </button>
               <button
-                className={`flex-1 flex items-center justify-center text-[10px] font-black rounded-xl transition-all ${state.waveform === 'square' ? 'bg-acid-700 text-acid-green shadow-inner' : 'text-gray-500'}`}
+                className={`flex-1 flex items-center justify-center text-xs font-black rounded-[20px] transition-all ${state.waveform === 'square' ? 'bg-white/10 shadow-inner' : 'text-gray-500'}`}
+                style={{ color: state.waveform === 'square' ? primaryColor : undefined }}
                 onClick={() => setState(p => ({ ...p, waveform: 'square' }))}
               >
                 SQR (O)
@@ -255,62 +306,54 @@ function App() {
             </div>
           </div>
 
-          {/* Main Area: 5 Sliders */}
-          <div className="flex-1 bg-black/20 p-6 rounded-2xl border border-white/5 flex justify-between gap-2 overflow-hidden min-h-[300px]">
+          {/* Main Area: Spaced Out Vertical Sliders */}
+          <div className="flex-1 bg-black/30 p-10 rounded-[40px] border border-white/5 flex justify-between gap-6 overflow-hidden min-h-[450px]">
             <VerticalSlider
-              label="Tempo"
-              value={state.bpm}
-              min={20} max={300}
+              label="Tempo" value={state.bpm} min={20} max={300}
               onChange={(v) => setState(p => ({ ...p, bpm: v }))}
-              color="bg-white"
-              shortcut="Q/A"
+              color="#fff" shortcut="Q/A"
             />
-            <div className="w-px bg-white/10 h-full mx-2"></div>
+            <div className="w-px bg-white/5 h-full mx-2"></div>
             <VerticalSlider
-              label="Cutoff"
-              value={state.cutoff}
-              min={0} max={100}
+              label="Cutoff" value={state.cutoff} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, cutoff: v }))}
-              shortcut="W/S"
+              color={primaryColor} shortcut="W/S"
             />
             <VerticalSlider
-              label="Reson"
-              value={state.resonance}
-              min={0} max={100}
+              label="Reson" value={state.resonance} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, resonance: v }))}
-              shortcut="E/D"
+              color={primaryColor} shortcut="E/D"
             />
             <VerticalSlider
-              label="Env Mod"
-              value={state.envMod}
-              min={0} max={100}
+              label="Env Mod" value={state.envMod} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, envMod: v }))}
-              shortcut="R/F"
+              color={primaryColor} shortcut="R/F"
             />
             <VerticalSlider
-              label="Decay"
-              value={state.decay}
-              min={0} max={100}
+              label="Decay" value={state.decay} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, decay: v }))}
-              shortcut="T/G"
+              color={primaryColor} shortcut="T/G"
             />
           </div>
 
         </div>
       </div>
 
-      <div className="mt-8 flex items-center gap-4 text-[10px] text-acid-700 font-bold tracking-widest uppercase">
-        <span>Web Audio Implementation</span>
-        <div className="w-1 h-1 bg-acid-700 rounded-full"></div>
-        <span>Web MIDI Engine</span>
-        <div className="w-1 h-1 bg-acid-700 rounded-full"></div>
-        <span>Performance Mode</span>
+      <InstructionsModal
+        isOpen={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+        primaryColor={primaryColor}
+      />
+
+      <div className="mt-8 flex items-center gap-6 text-[9px] text-gray-700 font-black tracking-[0.3em] uppercase">
+        <span>Web Audio 2.0</span>
+        <div className="w-1.5 h-1.5 bg-gray-800 rounded-full"></div>
+        <span>High-Precision MIDI</span>
+        <div className="w-1.5 h-1.5 bg-gray-800 rounded-full"></div>
+        <span>{state.themeName} Edition</span>
       </div>
     </div>
   );
 }
-
-const Play = ({ size, fill }: any) => <svg width={size} height={size} viewBox="0 0 24 24" fill={fill}><path d="M8 5v14l11-7z" /></svg>;
-const Square = ({ size, fill }: any) => <svg width={size} height={size} viewBox="0 0 24 24" fill={fill}><path d="M6 6h12v12H6z" /></svg>;
 
 export default App;

@@ -194,19 +194,18 @@ function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center p-2 md:p-8 transition-colors duration-500 overflow-x-hidden"
+      className="h-[100dvh] md:min-h-screen flex flex-col items-center p-1 md:p-8 transition-colors duration-500 overflow-hidden"
       style={{ backgroundColor: backdropColor }}
-      onScrollCapture={() => setHasScrolled(true)}
     >
 
       {/* Header */}
-      <div className="w-full max-w-7xl mb-4 md:mb-8 flex flex-col md:flex-row justify-between items-center md:items-end border-b pb-2 md:pb-4 shrink-0 gap-2 md:gap-4" style={{ borderColor: `${textColor}11` }}>
-        <div className="flex items-center gap-4 md:gap-6">
+      <div className="w-full max-w-7xl mb-2 md:mb-8 flex flex-row justify-between items-center md:items-end border-b pb-1 md:pb-4 shrink-0 gap-2 md:gap-4 px-2" style={{ borderColor: `${textColor}11` }}>
+        <div className="flex items-center gap-2 md:gap-6">
           <div>
-            <h1 className="text-2xl md:text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
+            <h1 className="text-xl md:text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
               music<span style={{ color: textColor }}>-cgt</span>
             </h1>
-            <p className="text-[8px] md:text-[10px] mt-0.5 md:mt-1 uppercase tracking-[0.2em] md:tracking-[0.3em] font-black opacity-50" style={{ color: textColor }}>Professional Acid Engine</p>
+            <p className="hidden md:block text-[10px] mt-1 uppercase tracking-[0.3em] font-black opacity-50" style={{ color: textColor }}>Professional Acid Engine</p>
           </div>
 
           <button
@@ -333,8 +332,8 @@ function App() {
         )
       }
 
-      {/* Main Grid: Stacks on Mobile, Side-by-side on Desktop */}
-      <div className="w-full max-w-[1600px] grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] flex-1 mb-4 md:mb-8 px-2 md:px-4 gap-4">
+      {/* Main Grid: Stacks on Mobile with grid-rows to ensure 100% height fit */}
+      <div className="w-full max-w-[1600px] grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] grid-rows-[2.3fr_1fr] lg:grid-rows-1 flex-1 mb-1 md:mb-8 px-1 md:px-4 gap-1 md:gap-6 min-h-0">
 
         {/* Left Column: Sequencer */}
         <div className="flex flex-col gap-4 md:gap-6 min-h-0">
@@ -352,12 +351,12 @@ function App() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 shrink-0 mb-4 md:mb-6">
+          <div className="grid grid-cols-2 gap-2 shrink-0 mb-2 md:mb-6 px-4">
             <button
               onClick={() => setState(prev => ({ ...prev, steps: prev.steps.map(s => ({ ...s, active: false })) }))}
-              className="px-6 py-4 text-[10px] md:text-[11px] font-black border-2 border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-[24px] transition-all shadow-lg uppercase italic"
+              className="px-2 py-2 text-[9px] md:text-[11px] font-black border-2 border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-[15px] md:rounded-[24px] transition-all shadow-lg uppercase italic"
             >
-              Clear Pattern
+              Clear
             </button>
             <button
               onClick={() => {
@@ -369,17 +368,17 @@ function App() {
                   }))
                 }));
               }}
-              className="px-6 py-4 text-[10px] md:text-[11px] font-black border-2 rounded-[24px] transition-all shadow-lg uppercase italic hover:bg-white hover:text-black"
+              className="px-2 py-2 text-[9px] md:text-[11px] font-black border-2 rounded-[15px] md:rounded-[24px] transition-all shadow-lg uppercase italic hover:bg-white hover:text-black"
               style={{ borderColor: `${primaryColor}22`, color: textColor }}
             >
-              Randomise
+              Random
             </button>
           </div>
         </div>
 
         {/* Right Column: Integrated Controls */}
         <div
-          className="bg-white/5 p-4 md:p-6 rounded-[20px] md:rounded-[30px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-6 md:gap-8 lg:max-h-[85vh] shrink-0 lg:shrink"
+          className="bg-white/5 p-2 md:p-6 rounded-[15px] md:rounded-[30px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-2 md:gap-8 min-h-0 overflow-hidden"
           style={{ borderColor: `${textColor}11` }}
         >
 
@@ -422,30 +421,30 @@ function App() {
           </div>
 
           {/* Main Area: Spaced Out Vertical Sliders */}
-          <div className="flex-1 bg-black/30 p-6 md:p-10 rounded-[30px] md:rounded-[40px] border flex flex-wrap sm:flex-nowrap justify-between gap-8 md:gap-4 min-h-0" style={{ borderColor: `${textColor}11` }}>
+          <div className="flex-1 bg-black/30 p-2 md:p-10 rounded-[15px] md:rounded-[40px] border flex flex-nowrap justify-between gap-1 md:gap-4 min-h-0 overflow-hidden" style={{ borderColor: `${textColor}11` }}>
             <VerticalSlider
-              label="Tempo" value={state.bpm} min={20} max={300}
+              label="BPM" value={state.bpm} min={20} max={300}
               onChange={(v) => setState(p => ({ ...p, bpm: v }))}
               color="#fff" textColor={textColor} shortcut="Q/A"
             />
             <div className="hidden sm:block w-px h-full mx-2 shrink-0" style={{ backgroundColor: `${textColor}11` }}></div>
             <VerticalSlider
-              label="Cutoff" value={state.cutoff} min={0} max={100}
+              label="Cut" value={state.cutoff} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, cutoff: v }))}
               color={primaryColor} textColor={textColor} shortcut="W/S"
             />
             <VerticalSlider
-              label="Reson" value={state.resonance} min={0} max={100}
+              label="Res" value={state.resonance} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, resonance: v }))}
               color={primaryColor} textColor={textColor} shortcut="E/D"
             />
             <VerticalSlider
-              label="Env Mod" value={state.envMod} min={0} max={100}
+              label="Mod" value={state.envMod} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, envMod: v }))}
               color={primaryColor} textColor={textColor} shortcut="R/F"
             />
             <VerticalSlider
-              label="Decay" value={state.decay} min={0} max={100}
+              label="Dec" value={state.decay} min={0} max={100}
               onChange={(v) => setState(p => ({ ...p, decay: v }))}
               color={primaryColor} textColor={textColor} shortcut="T/G"
             />

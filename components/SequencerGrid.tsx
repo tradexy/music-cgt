@@ -31,105 +31,87 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   };
 
   return (
-    <div className="flex flex-col select-none bg-black/40 p-4 rounded-[28px] border shadow-inner backdrop-blur-md" style={{ borderColor: `${textColor}11` }}>
-      {/* Note Grid */}
-      <div className="grid grid-cols-[auto_repeat(16,1fr)] gap-1 mb-4">
-        {/* Row Labels */}
-        <div className="flex flex-col justify-around text-[9px] font-bold pr-2 pb-6" style={{ color: textColor }}>
-          {displayNotes.map((note) => (
-            <div key={note.name} className="h-6 flex items-center justify-end uppercase tracking-tighter opacity-50">{note.name.replace('3', '')}</div>
-          ))}
-        </div>
+    <div className="flex flex-col select-none bg-black/40 p-2 md:p-4 rounded-[20px] md:rounded-[28px] border shadow-inner backdrop-blur-md" style={{ borderColor: `${textColor}11` }}>
+      {/* Unified Grid Container */}
+      <div className="grid grid-cols-[35px_repeat(16,1fr)] gap-0.5 md:gap-1">
 
-        {/* The Grid */}
-        <div className="grid grid-rows-13 grid-cols-16 gap-1">
-          {displayNotes.map((_, rowIdx) => (
-            <React.Fragment key={rowIdx}>
-              {steps.map((step, colIdx) => {
-                const realNoteIndex = (NOTES.length - 1) - rowIdx;
-                const isActive = step.active && step.noteIndex === realNoteIndex;
-                const isCurrent = currentStep === colIdx;
-                const isLaneStart = colIdx % 4 === 0;
+        {/* Header Row (Step Numbers) - Optional for extreme compactness but good for UX */}
+        <div className="h-4"></div>
+        {steps.map((_, i) => (
+          <div key={i} className="text-[7px] md:text-[8px] font-black opacity-30 text-center uppercase" style={{ color: textColor }}>{i + 1}</div>
+        ))}
 
-                let cellClass = "h-6 w-full rounded-sm border transition-all duration-75 cursor-pointer hover:border-white/20 ";
+        {/* Pitch Rows */}
+        {displayNotes.map((note, rowIdx) => (
+          <React.Fragment key={note.name}>
+            {/* Note Label */}
+            <div className="flex items-center justify-end pr-1 md:pr-2 h-4 md:h-5 text-[8px] md:text-[9px] font-bold uppercase tracking-tighter opacity-50" style={{ color: textColor }}>
+              {note.name.replace('3', '').replace('4', '')}
+            </div>
 
-                const style: React.CSSProperties = {
-                  borderColor: isCurrent ? textColor : `${textColor}11`,
-                  borderWidth: '1px'
-                };
+            {/* Steps for this pitch */}
+            {steps.map((step, colIdx) => {
+              const realNoteIndex = (NOTES.length - 1) - rowIdx;
+              const isActive = step.active && step.noteIndex === realNoteIndex;
+              const isCurrent = currentStep === colIdx;
+              const isBlackKey = note.name.includes('#');
 
-                if (isActive) {
-                  style.backgroundColor = accentColor;
-                  style.boxShadow = `0 0 12px ${accentColor}88`;
-                  style.borderColor = accentColor;
-                  style.transform = isCurrent ? 'scale(1.05)' : 'none';
-                } else {
-                  // Lane highlighting
-                  style.backgroundColor = isCurrent
-                    ? `${textColor}33` // Flash for empty cell
-                    : (isLaneStart ? `${textColor}0c` : `${textColor}05`);
-                }
+              return (
+                <div
+                  key={`${rowIdx}-${colIdx}`}
+                  onClick={() => handleGridClick(colIdx, rowIdx)}
+                  className={`h-4 md:h-5 w-full rounded-sm border transition-all duration-75 cursor-pointer hover:brightness-125
+                    ${isCurrent ? 'ring-1 z-10' : ''}`}
+                  style={{
+                    backgroundColor: isActive
+                      ? accentColor
+                      : (isBlackKey ? `${textColor}08` : `${textColor}05`),
+                    borderColor: isActive
+                      ? accentColor
+                      : (isCurrent ? `${textColor}44` : `${textColor}11`),
+                    boxShadow: isActive ? `0 0 10px ${accentColor}66` : 'none',
+                    opacity: isActive ? 1 : (isCurrent ? 0.8 : 0.6)
+                  }}
+                />
+              );
+            })}
+          </React.Fragment>
+        ))}
 
-                if (isCurrent) {
-                  cellClass += "ring-2 z-10 scale-[1.02] ";
-                  style.ringColor = textColor;
-                  style.boxShadow = `0 0 15px ${textColor}44`;
-                } else {
-                  cellClass += "opacity-80 ";
-                }
-
-                return (
-                  <div
-                    key={`${rowIdx}-${colIdx}`}
-                    className={cellClass}
-                    style={style}
-                    onClick={() => handleGridClick(colIdx, rowIdx)}
-                  />
-                );
-              })}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
-      {/* Control Rows (Accent, Slide) */}
-      <div className="grid grid-cols-[auto_repeat(16,1fr)] gap-1 pl-6">
+        {/* Spacer */}
+        <div className="h-2 col-span-17"></div>
 
         {/* Accent Row */}
-        <div className="flex items-center justify-end pr-2 text-[8px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>ACCENT</div>
-        <div className="col-span-16 grid grid-cols-16 gap-1">
-          {steps.map((step, i) => (
-            <button
-              key={`acc-${i}`}
-              className="h-4 w-full rounded-sm border transition-all"
-              style={{
-                backgroundColor: step.accent ? '#ff00ff' : (currentStep === i ? `${textColor}22` : 'rgba(255,255,255,0.03)'),
-                borderColor: step.accent ? '#ff00ff' : (currentStep === i ? textColor : `${textColor}11`),
-                boxShadow: step.accent ? '0 0 8px rgba(255,0,255,0.4)' : (currentStep === i ? `0 0 8px ${textColor}22` : 'none'),
-                opacity: currentStep === i ? 1 : 0.6
-              }}
-              onClick={() => onStepChange(i, { accent: !step.accent })}
-            />
-          ))}
-        </div>
+        <div className="flex items-center justify-end pr-1 md:pr-2 h-4 md:h-5 text-[7px] md:text-[8px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>ACC</div>
+        {steps.map((step, i) => (
+          <div
+            key={`acc-${i}`}
+            onClick={() => onStepChange(i, { accent: !step.accent })}
+            className={`h-3 md:h-4 w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
+            style={{
+              backgroundColor: step.accent ? '#ff00ff' : `${textColor}05`,
+              borderColor: step.accent ? '#ff00ff' : (currentStep === i ? `${textColor}44` : `${textColor}11`),
+              boxShadow: step.accent ? '0 0 8px rgba(255,0,255,0.4)' : 'none',
+              opacity: step.accent ? 1 : 0.6
+            }}
+          />
+        ))}
 
         {/* Slide Row */}
-        <div className="flex items-center justify-end pr-2 text-[8px] font-black uppercase tracking-tighter mt-1 opacity-40" style={{ color: textColor }}>SLIDE</div>
-        <div className="col-span-16 grid grid-cols-16 gap-1 mt-1">
-          {steps.map((step, i) => (
-            <button
-              key={`sld-${i}`}
-              className="h-4 w-full rounded-sm border transition-all"
-              style={{
-                backgroundColor: step.slide ? '#00ffff' : (currentStep === i ? `${textColor}22` : 'rgba(255,255,255,0.03)'),
-                borderColor: step.slide ? '#00ffff' : (currentStep === i ? textColor : `${textColor}11`),
-                boxShadow: step.slide ? '0 0 8px rgba(0,255,255,0.4)' : (currentStep === i ? `0 0 8px ${textColor}22` : 'none'),
-                opacity: currentStep === i ? 1 : 0.6
-              }}
-              onClick={() => onStepChange(i, { slide: !step.slide })}
-            />
-          ))}
-        </div>
+        <div className="flex items-center justify-end pr-1 md:pr-2 h-4 md:h-5 text-[7px] md:text-[8px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>SLD</div>
+        {steps.map((step, i) => (
+          <div
+            key={`sld-${i}`}
+            onClick={() => onStepChange(i, { slide: !step.slide })}
+            className={`h-3 md:h-4 w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
+            style={{
+              backgroundColor: step.slide ? '#00ffff' : `${textColor}05`,
+              borderColor: step.slide ? '#00ffff' : (currentStep === i ? `${textColor}44` : `${textColor}11`),
+              boxShadow: step.slide ? '0 0 8px rgba(0,255,255,0.4)' : 'none',
+              opacity: step.slide ? 1 : 0.6
+            }}
+          />
+        ))}
       </div>
     </div>
   );

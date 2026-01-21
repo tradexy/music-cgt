@@ -42,7 +42,17 @@ function App() {
   const [hasScrolled, setHasScrolled] = useState(false);
 
   const stateRef = useRef(state);
-  useEffect(() => { stateRef.current = state; }, [state]);
+  useEffect(() => {
+    stateRef.current = state;
+    // Real-time update to audio engine
+    audioEngine.updateParams({
+      cutoff: state.cutoff,
+      resonance: state.resonance,
+      decay: state.decay,
+      envMod: state.envMod,
+      waveform: state.waveform as 'sawtooth' | 'square'
+    });
+  }, [state.cutoff, state.resonance, state.decay, state.envMod, state.waveform]);
 
   const nextNoteTimeRef = useRef(0);
   const currentStepRef = useRef(0);
@@ -208,6 +218,10 @@ function App() {
           </button>
         </div>
 
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 border rounded-full text-[9px] font-black uppercase tracking-wider opacity-60" style={{ color: textColor, borderColor: `${textColor}22` }}>
+          Keys: [P] Play | [Q/A] BPM | [W/S] Cut | [E/D] Res | [R/F] Env | [T/G] Dec | [I/O] Wave
+        </div>
+
         <div className="flex gap-4 items-center">
           {deferredPrompt && (
             <button
@@ -242,88 +256,90 @@ function App() {
       </div>
 
       {/* Theme Settings Bar */}
-      {showThemeSettings && (
-        <div
-          className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-8 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-center md:justify-between shrink-0"
-          style={{ borderColor: `${textColor}22` }}
-        >
-          <div className="flex items-center gap-4">
-            <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Presets:</span>
-            <div className="flex flex-wrap gap-2">
-              {THEME_PRESETS.map(p => (
-                <button
-                  key={p.name}
-                  onClick={() => setState(prev => ({ ...prev, themeName: p.name, customPrimary: undefined, customBackdrop: undefined, customText: undefined }))}
-                  className={`px-3 py-1 text-[10px] font-black rounded-full border transition-all ${state.themeName === p.name ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
-                  style={{
-                    color: textColor,
-                    borderColor: state.themeName === p.name ? textColor : `${textColor}33`,
-                    backgroundColor: state.themeName === p.name ? `${textColor}11` : 'transparent'
-                  }}
-                >
-                  {p.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-center">
-            <div className="flex items-center gap-2">
-              <Zap size={14} style={{ color: textColor }} />
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Speed:</span>
-              <select
-                value={state.controlSpeed}
-                onChange={(e) => setState(prev => ({ ...prev, controlSpeed: Number(e.target.value) }))}
-                className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer"
-                style={{ color: textColor }}
-              >
-                {[1, 2, 3, 4, 5].map(v => (
-                  <option key={v} value={v} className="bg-zinc-900">{v}</option>
+      {
+        showThemeSettings && (
+          <div
+            className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-8 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-center md:justify-between shrink-0"
+            style={{ borderColor: `${textColor}22` }}
+          >
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Presets:</span>
+              <div className="flex flex-wrap gap-2">
+                {THEME_PRESETS.map(p => (
+                  <button
+                    key={p.name}
+                    onClick={() => setState(prev => ({ ...prev, themeName: p.name, customPrimary: undefined, customBackdrop: undefined, customText: undefined }))}
+                    className={`px-3 py-1 text-[10px] font-black rounded-full border transition-all ${state.themeName === p.name ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
+                    style={{
+                      color: textColor,
+                      borderColor: state.themeName === p.name ? textColor : `${textColor}33`,
+                      backgroundColor: state.themeName === p.name ? `${textColor}11` : 'transparent'
+                    }}
+                  >
+                    {p.name}
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Settings size={14} style={{ color: textColor }} />
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Primary:</span>
-              <input
-                type="color"
-                value={primaryColor}
-                onChange={(e) => setState(prev => ({ ...prev, customPrimary: e.target.value }))}
-                className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Settings size={14} style={{ color: textColor }} />
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Backdrop:</span>
-              <input
-                type="color"
-                value={backdropColor}
-                onChange={(e) => setState(prev => ({ ...prev, customBackdrop: e.target.value }))}
-                className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Type size={14} style={{ color: textColor }} />
-              <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Text:</span>
-              <input
-                type="color"
-                value={textColor}
-                onChange={(e) => setState(prev => ({ ...prev, customText: e.target.value }))}
-                className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
-              />
+            <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-center">
+              <div className="flex items-center gap-2">
+                <Zap size={14} style={{ color: textColor }} />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Speed:</span>
+                <select
+                  value={state.controlSpeed}
+                  onChange={(e) => setState(prev => ({ ...prev, controlSpeed: Number(e.target.value) }))}
+                  className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer"
+                  style={{ color: textColor }}
+                >
+                  {[1, 2, 3, 4, 5].map(v => (
+                    <option key={v} value={v} className="bg-zinc-900">{v}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Settings size={14} style={{ color: textColor }} />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Primary:</span>
+                <input
+                  type="color"
+                  value={primaryColor}
+                  onChange={(e) => setState(prev => ({ ...prev, customPrimary: e.target.value }))}
+                  className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Settings size={14} style={{ color: textColor }} />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Backdrop:</span>
+                <input
+                  type="color"
+                  value={backdropColor}
+                  onChange={(e) => setState(prev => ({ ...prev, customBackdrop: e.target.value }))}
+                  className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <Type size={14} style={{ color: textColor }} />
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Text:</span>
+                <input
+                  type="color"
+                  value={textColor}
+                  onChange={(e) => setState(prev => ({ ...prev, customText: e.target.value }))}
+                  className="w-8 h-8 rounded-lg cursor-pointer bg-transparent border-none"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Main Grid: Stacks on Mobile, Side-by-side on Desktop */}
       <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-8 lg:gap-12 flex-1 mb-8">
 
         {/* Left Column: Sequencer */}
-        <div className="flex flex-col gap-6 lg:gap-8 lg:max-h-[85vh] min-h-0">
-          <div className="flex-1 bg-black/40 p-4 md:p-6 rounded-[30px] md:rounded-[40px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0 overflow-hidden" style={{ borderColor: `${textColor}11` }}>
-            <div className="flex-1 overflow-y-auto custom-scrollbar md:pr-2">
+        <div className="flex flex-col gap-6 lg:gap-8 min-h-0">
+          <div className="bg-black/40 p-3 md:p-6 rounded-[30px] md:rounded-[40px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
+            <div className="md:pr-2">
               <div className="min-w-[400px] md:min-w-0">
                 <SequencerGrid
                   steps={state.steps}
@@ -439,13 +455,15 @@ function App() {
       </div>
 
       {/* Mobile Scroll Hint */}
-      {!hasScrolled && (
-        <div className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-50 pointer-events-none animate-bounce">
-          <div className="bg-white/10 backdrop-blur-lg px-6 py-3 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest shadow-2xl" style={{ color: textColor }}>
-            Scroll for Sliders ↓
+      {
+        !hasScrolled && (
+          <div className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-50 pointer-events-none animate-bounce">
+            <div className="bg-white/10 backdrop-blur-lg px-6 py-3 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest shadow-2xl" style={{ color: textColor }}>
+              Scroll for Sliders ↓
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       <InstructionsModal
         isOpen={isHelpOpen}
@@ -457,7 +475,7 @@ function App() {
       {/* Footer */}
       <div className="py-10 flex flex-col items-center gap-4 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
         <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
-          <span>Web Audio 3.2</span>
+          <span>Web Audio 3.3</span>
           <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
           <span>High-Precision MIDI</span>
           <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
@@ -467,7 +485,7 @@ function App() {
         </div>
         <p className="opacity-60 lowercase tracking-normal font-medium">iOS: Tap Share {'->'} Add to Home Screen</p>
       </div>
-    </div>
+    </div >
   );
 }
 

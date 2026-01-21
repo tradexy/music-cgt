@@ -52,7 +52,7 @@ function App() {
       envMod: state.envMod,
       waveform: state.waveform as 'sawtooth' | 'square'
     });
-  }, [state.cutoff, state.resonance, state.decay, state.envMod, state.waveform]);
+  }, [state]);
 
   const nextNoteTimeRef = useRef(0);
   const currentStepRef = useRef(0);
@@ -334,11 +334,11 @@ function App() {
       }
 
       {/* Main Grid: Stacks on Mobile, Side-by-side on Desktop */}
-      <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[550px_1fr] gap-8 lg:gap-12 flex-1 mb-8">
+      <div className="w-full max-w-[1600px] grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 md:gap-6 flex-1 mb-8 px-4">
 
         {/* Left Column: Sequencer */}
-        <div className="flex flex-col gap-6 lg:gap-8 min-h-0">
-          <div className="bg-black/40 p-3 md:p-6 rounded-[30px] md:rounded-[40px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
+        <div className="flex flex-col gap-4 md:gap-6 min-h-0">
+          <div className="bg-black/40 p-2 md:p-4 rounded-[20px] md:rounded-[30px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
             <div className="md:pr-2">
               <div className="min-w-[400px] md:min-w-0">
                 <SequencerGrid
@@ -379,25 +379,25 @@ function App() {
 
         {/* Right Column: Integrated Controls */}
         <div
-          className="bg-white/5 p-6 md:p-8 rounded-[30px] md:rounded-[40px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-8 md:gap-10 lg:max-h-[85vh] shrink-0 lg:shrink"
+          className="bg-white/5 p-4 md:p-6 rounded-[20px] md:rounded-[30px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-6 md:gap-8 lg:max-h-[85vh] shrink-0 lg:shrink"
           style={{ borderColor: `${textColor}11` }}
         >
 
           {/* Top Row: Play & Waveform */}
-          <div className="flex flex-col sm:flex-row items-stretch gap-6 sm:h-28 shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch gap-4 sm:h-16 shrink-0">
             <button
               onClick={togglePlay}
-              className="flex-[2] py-6 sm:py-0 rounded-[25px] sm:rounded-[30px] flex items-center justify-center transition-all shadow-2xl hover:scale-[1.01] active:scale-[0.98]"
+              className="flex-[1.5] py-4 sm:py-0 rounded-[15px] sm:rounded-[20px] flex items-center justify-center transition-all shadow-xl hover:scale-[1.01] active:scale-[0.98]"
               style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: textColor }}
             >
               {state.isPlaying ? (
-                <div className="flex items-center gap-4 font-black italic text-2xl md:text-3xl uppercase tracking-tighter"><Square size={32} fill="currentColor" /> Stop</div>
+                <div className="flex items-center gap-2 font-black italic text-lg md:text-xl uppercase tracking-tighter"><Square size={20} fill="currentColor" /> Stop</div>
               ) : (
-                <div className="flex items-center gap-4 font-black italic text-2xl md:text-3xl uppercase tracking-tighter"><Play size={32} fill="currentColor" /> Play</div>
+                <div className="flex items-center gap-2 font-black italic text-lg md:text-xl uppercase tracking-tighter"><Play size={20} fill="currentColor" /> Play</div>
               )}
             </button>
 
-            <div className="flex-1 bg-black/40 rounded-[25px] sm:rounded-[30px] flex p-1.5 border min-h-[60px]" style={{ borderColor: `${textColor}11` }}>
+            <div className="flex-1 bg-black/40 rounded-[15px] sm:rounded-[20px] flex p-1 border min-h-[40px]" style={{ borderColor: `${textColor}11` }}>
               <button
                 className={`flex-1 flex items-center justify-center text-[10px] md:text-xs font-black rounded-[20px] transition-all`}
                 style={{

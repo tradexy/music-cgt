@@ -45,7 +45,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
         {displayNotes.map((note, rowIdx) => (
           <React.Fragment key={note.name}>
             {/* Note Label */}
-            <div className="flex items-center justify-end pr-1 md:pr-2 h-4 md:h-5 text-[8px] md:text-[9px] font-bold uppercase tracking-tighter opacity-50" style={{ color: textColor }}>
+            <div className="flex items-center justify-end pr-1 md:pr-2 h-5 md:h-7 text-[9px] md:text-[11px] font-bold uppercase tracking-tighter opacity-50" style={{ color: textColor }}>
               {note.name.replace('3', '').replace('4', '')}
             </div>
 
@@ -60,7 +60,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
                 <div
                   key={`${rowIdx}-${colIdx}`}
                   onClick={() => handleGridClick(colIdx, rowIdx)}
-                  className={`h-4 md:h-5 w-full rounded-sm border transition-all duration-75 cursor-pointer hover:brightness-125
+                  className={`h-5 md:h-7 w-full rounded-sm border transition-all duration-75 cursor-pointer hover:brightness-125
                     ${isCurrent ? 'ring-1 z-10' : ''}`}
                   style={{
                     backgroundColor: isActive
@@ -82,12 +82,12 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
         <div className="h-2 col-span-17"></div>
 
         {/* Accent Row */}
-        <div className="flex items-center justify-end pr-1 md:pr-2 h-4 md:h-5 text-[7px] md:text-[8px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>ACC</div>
+        <div className="flex items-center justify-end pr-1 md:pr-2 h-5 md:h-7 text-[8px] md:text-[10px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>ACC</div>
         {steps.map((step, i) => (
           <div
             key={`acc-${i}`}
             onClick={() => onStepChange(i, { accent: !step.accent })}
-            className={`h-3 md:h-4 w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
+            className={`h-4 md:h-6 w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
             style={{
               backgroundColor: step.accent ? '#ff00ff' : `${textColor}05`,
               borderColor: step.accent ? '#ff00ff' : (currentStep === i ? `${textColor}44` : `${textColor}11`),
@@ -98,12 +98,12 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
         ))}
 
         {/* Slide Row */}
-        <div className="flex items-center justify-end pr-1 md:pr-2 h-4 md:h-5 text-[7px] md:text-[8px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>SLD</div>
+        <div className="flex items-center justify-end pr-1 md:pr-2 h-5 md:h-7 text-[8px] md:text-[10px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>SLD</div>
         {steps.map((step, i) => (
           <div
             key={`sld-${i}`}
             onClick={() => onStepChange(i, { slide: !step.slide })}
-            className={`h-3 md:h-4 w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
+            className={`h-4 md:h-6 w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
             style={{
               backgroundColor: step.slide ? '#00ffff' : `${textColor}05`,
               borderColor: step.slide ? '#00ffff' : (currentStep === i ? `${textColor}44` : `${textColor}11`),

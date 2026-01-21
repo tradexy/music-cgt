@@ -2,15 +2,4 @@
 body {
     margin: 0;
     padding: 0;
-    width: 100vw;
-    height: 100dvh;
-    overflow: hidden;
-    overscroll-behavior: none;
-    touch-action: none;
-}
-
-html {
-    overscroll-behavior: none;
-    overflow: hidden;
-    height: 100%;
 }

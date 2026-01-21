@@ -5,7 +5,7 @@ import { InstructionsModal } from './components/InstructionsModal';
 import { audioEngine } from './services/AudioEngine';
 import { midiService } from './services/MidiService';
 import { SequencerState, Step, NOTES, THEME_PRESETS } from './types';
-import { HelpCircle, Play, Square, Settings, Type, Zap, Download, RefreshCw } from 'lucide-react';
+import { HelpCircle, Play, Square, Settings, Type, Zap, Download } from 'lucide-react';
 
 // Constants
 const STEPS_PER_BAR = 16;
@@ -52,7 +52,7 @@ function App() {
       envMod: state.envMod,
       waveform: state.waveform as 'sawtooth' | 'square'
     });
-  }, [state]);
+  }, [state.cutoff, state.resonance, state.decay, state.envMod, state.waveform, state.steps]);
 
   const nextNoteTimeRef = useRef(0);
   const currentStepRef = useRef(0);
@@ -194,45 +194,60 @@ function App() {
 
   return (
     <div
-      className="h-screen w-screen overflow-hidden flex flex-col items-stretch bg-black"
+      className="min-h-screen flex flex-col items-center p-2 md:p-4 transition-colors duration-500 overflow-y-auto"
       style={{ backgroundColor: backdropColor }}
+      onScrollCapture={() => setHasScrolled(true)}
     >
 
-      {/* Header - 4% Height Limit */}
-      <div className="w-full h-[4vh] min-h-[30px] flex flex-row justify-between items-center border-b px-2 shrink-0 bg-black/20 backdrop-blur-sm z-50" style={{ borderColor: `${textColor}11` }}>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg md:text-2xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
+      {/* Header */}
+      <div className="w-full max-w-[98vw] mb-4 flex flex-col md:flex-row justify-between items-center md:items-end border-b pb-2 shrink-0 gap-4" style={{ borderColor: `${textColor}11` }}>
+        <div className="flex items-center gap-6">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
               music<span style={{ color: textColor }}>-cgt</span>
             </h1>
-            <span className="hidden md:inline text-[8px] uppercase tracking-widest opacity-50 font-bold" style={{ color: textColor }}>v3.3</span>
+            <p className="text-[10px] mt-1 uppercase tracking-[0.3em] font-black opacity-50" style={{ color: textColor }}>Professional Acid Engine</p>
           </div>
 
           <button
             onClick={() => setIsHelpOpen(true)}
-            className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded-full text-[9px] font-black uppercase transition-all border hover:bg-white/10"
+            className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-full text-[10px] font-black uppercase transition-all border hover:bg-white/10"
             style={{ color: textColor, borderColor: `${textColor}22` }}
           >
-            <HelpCircle size={10} /> <span className="hidden sm:inline">Help</span>
+            <HelpCircle size={14} /> How to Use
           </button>
         </div>
 
-        <div className="flex gap-2 items-center">
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/5 border rounded-full text-[9px] font-black uppercase tracking-wider opacity-60" style={{ color: textColor, borderColor: `${textColor}22` }}>
+          Keys: [P] Play | [Q/A] BPM | [W/S] Cut | [E/D] Res | [R/F] Env | [T/G] Dec | [I/O] Wave
+        </div>
+
+        <div className="flex gap-4 items-center">
+          {deferredPrompt && (
+            <button
+              onClick={handleInstallClick}
+              className="flex items-center gap-3 px-6 py-3 rounded-full text-sm font-black uppercase transition-all shadow-xl hover:scale-105 active:scale-95 animate-pulse"
+              style={{ backgroundColor: primaryColor, color: backdropColor }}
+            >
+              <Download size={20} /> Install App
+            </button>
+          )}
+
           <button
             onClick={() => setShowThemeSettings(!showThemeSettings)}
-            className="p-1 px-2 bg-white/5 rounded border transition-all hover:bg-white/10 flex items-center gap-1"
+            className="p-2 bg-white/5 rounded-lg border transition-all hover:bg-white/10"
             style={{ color: textColor, borderColor: `${textColor}22` }}
           >
-            <Settings size={12} /> <span className="text-[9px] font-black uppercase hidden sm:inline">Settings</span>
+            <Settings size={18} />
           </button>
 
           <select
-            className="bg-black/20 border rounded text-[9px] py-0.5 px-1 focus:border-white outline-none font-bold uppercase w-24 sm:w-auto"
+            className="bg-black/20 border rounded-lg text-xs p-2.5 focus:border-white outline-none font-bold"
             style={{ color: textColor, borderColor: `${textColor}22` }}
             value={state.selectedMidiOutputId || ''}
             onChange={(e) => setState(prev => ({ ...prev, selectedMidiOutputId: e.target.value || null }))}
           >
-            <option value="">Int. Audio</option>
+            <option value="">-- Internal Audio --</option>
             {midiOutputs.map(o => (
               <option key={o.id} value={o.id}>{o.name}</option>
             ))}
@@ -244,7 +259,7 @@ function App() {
       {
         showThemeSettings && (
           <div
-            className="w-full animate-in slide-in-from-top duration-300 mb-4 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-center md:justify-between shrink-0"
+            className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-8 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-center md:justify-between shrink-0"
             style={{ borderColor: `${textColor}22` }}
           >
             <div className="flex items-center gap-4">
@@ -268,15 +283,9 @@ function App() {
             </div>
 
             <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-center">
-              <button
-                onClick={() => window.location.reload()}
-                className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-full text-[10px] font-black uppercase transition-all flex items-center gap-1"
-              >
-                <RefreshCw size={10} /> Reload App
-              </button>
               <div className="flex items-center gap-2">
                 <Zap size={14} style={{ color: textColor }} />
-                <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>PC Keys Speed:</span>
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Speed:</span>
                 <select
                   value={state.controlSpeed}
                   onChange={(e) => setState(prev => ({ ...prev, controlSpeed: Number(e.target.value) }))}
@@ -324,130 +333,137 @@ function App() {
         )
       }
 
-      {/* Main Grid: 96% Height - Strict Layout */}
-      <div className="w-full h-[96vh] flex flex-col md:flex-row p-1 gap-1 md:gap-4 items-stretch">
+      {/* Main Grid: Stacks on Mobile, 70/30 on Desktop */}
+      <div className="w-full max-w-[98vw] grid grid-cols-1 lg:grid-cols-[7fr_3fr] gap-4 lg:gap-8 flex-1 mb-4">
 
-        {/* Left Column: Sequencer (65-70%) */}
-        <div className="flex-col min-h-0 flex-[65] md:flex-[70] relative flex">
-          <div className="absolute inset-0 bg-black/40 rounded-[12px] border shadow-2xl backdrop-blur-md flex flex-col overflow-hidden" style={{ borderColor: `${textColor}11` }}>
-            <div className="flex-1 w-full h-full">
-              <SequencerGrid
-                steps={state.steps}
-                currentStep={state.currentStep}
-                onStepChange={handleStepChange}
-                accentColor={primaryColor}
-                textColor={textColor}
-              />
+        {/* Left Column: Sequencer */}
+        <div className="flex flex-col gap-4 lg:gap-6 min-h-0">
+          <div className="bg-black/40 p-2 md:p-4 rounded-[20px] md:rounded-[30px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
+            <div className="md:pr-2">
+              <div className="min-w-[400px] md:min-w-0">
+                <SequencerGrid
+                  steps={state.steps}
+                  currentStep={state.currentStep}
+                  onStepChange={handleStepChange}
+                  accentColor={primaryColor}
+                  textColor={textColor}
+                />
+              </div>
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 shrink-0 mb-4 md:mb-6">
+            <button
+              onClick={() => setState(prev => ({ ...prev, steps: prev.steps.map(s => ({ ...s, active: false })) }))}
+              className="px-6 py-4 text-[10px] md:text-[11px] font-black border-2 border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-[24px] transition-all shadow-lg uppercase italic"
+            >
+              Clear Pattern
+            </button>
+            <button
+              onClick={() => {
+                setState(prev => ({
+                  ...prev,
+                  steps: prev.steps.map(s => ({
+                    ...s, active: Math.random() > 0.4, noteIndex: Math.floor(Math.random() * 12),
+                    accent: Math.random() > 0.7, slide: Math.random() > 0.8
+                  }))
+                }));
+              }}
+              className="px-6 py-4 text-[10px] md:text-[11px] font-black border-2 rounded-[24px] transition-all shadow-lg uppercase italic hover:bg-white hover:text-black"
+              style={{ borderColor: `${primaryColor}22`, color: textColor }}
+            >
+              Randomise
+            </button>
           </div>
         </div>
 
-        {/* Right Column: Integrated Controls (35-30%) */}
-        <div className="flex-[35] md:flex-[30] relative flex min-h-0">
-          <div
-            className="absolute inset-0 bg-white/5 rounded-[12px] border shadow-xl backdrop-blur-xl flex flex-col gap-1 p-1 md:p-3 overflow-hidden"
-            style={{ borderColor: `${textColor}11` }}
-          >
+        {/* Right Column: Integrated Controls */}
+        <div
+          className="bg-white/5 p-6 md:p-8 rounded-[30px] md:rounded-[40px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-8 md:gap-10 lg:max-h-[85vh] shrink-0 lg:shrink"
+          style={{ borderColor: `${textColor}11` }}
+        >
 
-            {/* Top Row: Play & Waveform (Compact) */}
-            <div className="flex flex-row items-stretch gap-1 shrink-0 h-[15%] md:h-[10%] min-h-[40px]">
+          {/* Top Row: Play & Waveform */}
+          <div className="flex flex-col sm:flex-row items-stretch gap-6 sm:h-28 shrink-0">
+            <button
+              onClick={togglePlay}
+              className="flex-[2] py-6 sm:py-0 rounded-[25px] sm:rounded-[30px] flex items-center justify-center transition-all shadow-2xl hover:scale-[1.01] active:scale-[0.98]"
+              style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: textColor }}
+            >
+              {state.isPlaying ? (
+                <div className="flex items-center gap-4 font-black italic text-2xl md:text-3xl uppercase tracking-tighter"><Square size={32} fill="currentColor" /> Stop</div>
+              ) : (
+                <div className="flex items-center gap-4 font-black italic text-2xl md:text-3xl uppercase tracking-tighter"><Play size={32} fill="currentColor" /> Play</div>
+              )}
+            </button>
+
+            <div className="flex-1 bg-black/40 rounded-[25px] sm:rounded-[30px] flex p-1.5 border min-h-[60px]" style={{ borderColor: `${textColor}11` }}>
               <button
-                onClick={togglePlay}
-                className="flex-[1] rounded-[8px] flex items-center justify-center transition-all shadow-lg hover:scale-[1.01] active:scale-[0.98]"
-                style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: textColor }}
+                className={`flex-1 flex items-center justify-center text-[10px] md:text-xs font-black rounded-[20px] transition-all`}
+                style={{
+                  color: state.waveform === 'sawtooth' ? primaryColor : `${textColor}33`,
+                  backgroundColor: state.waveform === 'sawtooth' ? 'rgba(255,255,255,0.05)' : 'transparent'
+                }}
+                onClick={() => setState(p => ({ ...p, waveform: 'sawtooth' }))}
               >
-                {state.isPlaying ? (
-                  <div className="flex items-center gap-1 font-black italic text-xs uppercase tracking-tighter"><Square size={12} fill="currentColor" /> Stop</div>
-                ) : (
-                  <div className="flex items-center gap-1 font-black italic text-xs uppercase tracking-tighter"><Play size={12} fill="currentColor" /> Play</div>
-                )}
+                SAW (I)
               </button>
-
-              {/* Waveform Controls */}
-              <div className="flex-[1] bg-black/40 rounded-[8px] flex p-0.5 border" style={{ borderColor: `${textColor}11` }}>
-                <button
-                  className={`flex-1 flex items-center justify-center text-[9px] font-black rounded-l-[6px] transition-all`}
-                  style={{
-                    color: state.waveform === 'sawtooth' ? primaryColor : `${textColor}33`,
-                    backgroundColor: state.waveform === 'sawtooth' ? 'rgba(255,255,255,0.05)' : 'transparent'
-                  }}
-                  onClick={() => setState(p => ({ ...p, waveform: 'sawtooth' }))}
-                >
-                  SAW
-                </button>
-                <div className="w-px h-full bg-white/5"></div>
-                <button
-                  className={`flex-1 flex items-center justify-center text-[9px] font-black rounded-r-[6px] transition-all`}
-                  style={{
-                    color: state.waveform === 'square' ? primaryColor : `${textColor}33`,
-                    backgroundColor: state.waveform === 'square' ? 'rgba(255,255,255,0.05)' : 'transparent'
-                  }}
-                  onClick={() => setState(p => ({ ...p, waveform: 'square' }))}
-                >
-                  SQR
-                </button>
-              </div>
-
-              {/* Util Buttons - Compact */}
-              <div className="flex flex-col gap-0.5 w-[15%] min-w-[50px]">
-                <button
-                  onClick={() => setState(prev => ({ ...prev, steps: prev.steps.map(s => ({ ...s, active: false })) }))}
-                  className="flex-1 text-[8px] font-black border border-red-900/40 text-red-500 hover:bg-red-500 hover:text-white rounded-[6px] uppercase"
-                >
-                  CLR
-                </button>
-                <button
-                  onClick={() => {
-                    setState(prev => ({
-                      ...prev,
-                      steps: prev.steps.map(s => ({
-                        ...s, active: Math.random() > 0.4, noteIndex: Math.floor(Math.random() * 12),
-                        accent: Math.random() > 0.7, slide: Math.random() > 0.8
-                      }))
-                    }));
-                  }}
-                  className="flex-1 text-[8px] font-black border rounded-[6px] uppercase hover:bg-white hover:text-black"
-                  style={{ borderColor: `${primaryColor}22`, color: textColor }}
-                >
-                  RND
-                </button>
-              </div>
+              <button
+                className={`flex-1 flex items-center justify-center text-[10px] md:text-xs font-black rounded-[20px] transition-all`}
+                style={{
+                  color: state.waveform === 'square' ? primaryColor : `${textColor}33`,
+                  backgroundColor: state.waveform === 'square' ? 'rgba(255,255,255,0.05)' : 'transparent'
+                }}
+                onClick={() => setState(p => ({ ...p, waveform: 'square' }))}
+              >
+                SQR (O)
+              </button>
             </div>
-
-            {/* Main Area: Spaced Out Vertical Sliders (Fill Rest) */}
-            <div className="flex-1 bg-black/30 p-1 md:p-6 rounded-[10px] border flex flex-nowrap justify-between gap-1 md:gap-8 min-h-0 overflow-hidden md:max-w-lg md:mx-auto w-full" style={{ borderColor: `${textColor}11` }}>
-              <VerticalSlider
-                label="BPM" value={state.bpm} min={20} max={300}
-                onChange={(v) => setState(p => ({ ...p, bpm: v }))}
-                color="#fff" textColor={textColor} shortcut="Q"
-              />
-              <div className="w-px h-full bg-white/5 mx-0.5"></div>
-              <VerticalSlider
-                label="CUT" value={state.cutoff} min={0} max={100}
-                onChange={(v) => setState(p => ({ ...p, cutoff: v }))}
-                color={primaryColor} textColor={textColor} shortcut="W"
-              />
-              <VerticalSlider
-                label="RES" value={state.resonance} min={0} max={100}
-                onChange={(v) => setState(p => ({ ...p, resonance: v }))}
-                color={primaryColor} textColor={textColor} shortcut="E"
-              />
-              <VerticalSlider
-                label="MOD" value={state.envMod} min={0} max={100}
-                onChange={(v) => setState(p => ({ ...p, envMod: v }))}
-                color={primaryColor} textColor={textColor} shortcut="R"
-              />
-              <VerticalSlider
-                label="DEC" value={state.decay} min={0} max={100}
-                onChange={(v) => setState(p => ({ ...p, decay: v }))}
-                color={primaryColor} textColor={textColor} shortcut="T"
-              />
-            </div>
-
           </div>
+
+          {/* Main Area: Spaced Out Vertical Sliders */}
+          <div className="flex-1 bg-black/30 p-6 md:p-10 rounded-[30px] md:rounded-[40px] border flex flex-wrap sm:flex-nowrap justify-between gap-8 md:gap-4 min-h-0" style={{ borderColor: `${textColor}11` }}>
+            <VerticalSlider
+              label="Tempo" value={state.bpm} min={20} max={300}
+              onChange={(v) => setState(p => ({ ...p, bpm: v }))}
+              color="#fff" textColor={textColor} shortcut="Q/A"
+            />
+            <div className="hidden sm:block w-px h-full mx-2 shrink-0" style={{ backgroundColor: `${textColor}11` }}></div>
+            <VerticalSlider
+              label="Cutoff" value={state.cutoff} min={0} max={100}
+              onChange={(v) => setState(p => ({ ...p, cutoff: v }))}
+              color={primaryColor} textColor={textColor} shortcut="W/S"
+            />
+            <VerticalSlider
+              label="Reson" value={state.resonance} min={0} max={100}
+              onChange={(v) => setState(p => ({ ...p, resonance: v }))}
+              color={primaryColor} textColor={textColor} shortcut="E/D"
+            />
+            <VerticalSlider
+              label="Env Mod" value={state.envMod} min={0} max={100}
+              onChange={(v) => setState(p => ({ ...p, envMod: v }))}
+              color={primaryColor} textColor={textColor} shortcut="R/F"
+            />
+            <VerticalSlider
+              label="Decay" value={state.decay} min={0} max={100}
+              onChange={(v) => setState(p => ({ ...p, decay: v }))}
+              color={primaryColor} textColor={textColor} shortcut="T/G"
+            />
+          </div>
+
         </div>
       </div>
 
+      {/* Mobile Scroll Hint */}
+      {
+        !hasScrolled && (
+          <div className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-50 pointer-events-none animate-bounce">
+            <div className="bg-white/10 backdrop-blur-lg px-6 py-3 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest shadow-2xl" style={{ color: textColor }}>
+              Scroll for Sliders ↓
+            </div>
+          </div>
+        )
+      }
 
       <InstructionsModal
         isOpen={isHelpOpen}
@@ -456,12 +472,19 @@ function App() {
         textColor={textColor}
       />
 
-      {/* Footer - Minimal Overlay */}
-      <div className="fixed bottom-1 right-2 text-[7px] font-black uppercase tracking-widest opacity-20 pointer-events-none" style={{ color: textColor }}>
-        Acid Engine v3.3
+      {/* Footer */}
+      <div className="py-10 flex flex-col items-center gap-4 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
+        <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
+          <span>Web Audio 3.3</span>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
+          <span>High-Precision MIDI</span>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
+          <span>{state.themeName} Edition</span>
+          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
+          <span className="flex items-center gap-1"><Zap size={10} /> Speed {state.controlSpeed}</span>
+        </div>
+        <p className="opacity-60 lowercase tracking-normal font-medium">iOS: Tap Share {'->'} Add to Home Screen</p>
       </div>
-
-
     </div >
   );
 }

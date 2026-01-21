@@ -31,17 +31,17 @@ export const VerticalSlider: React.FC<VerticalSliderProps> = ({
   }
 
   return (
-    <div className="flex flex-col items-center gap-0.5 md:gap-3 group h-full select-none min-h-0 mb-1 md:mb-4 overflow-hidden">
+    <div className="flex flex-col items-center gap-3 group h-full select-none min-h-[250px] mb-4 overflow-hidden">
       <div
-        className="text-[8px] md:text-[11px] font-black uppercase tracking-tight md:tracking-[0.2em] opacity-70"
+        className="text-[11px] font-black uppercase tracking-[0.2em] opacity-70"
         style={{ color: textColor }}
       >
         {label}
       </div>
 
-      <div className="relative flex-1 flex gap-1 md:gap-4 h-full min-h-0">
-        {/* Measures (Tick Marks) - Hidden on mobile for space */}
-        <div className="hidden md:flex relative w-4 h-full flex-col justify-between py-2 text-[8px] font-mono">
+      <div className="relative flex-1 flex gap-4 h-full min-h-0">
+        {/* Measures (Tick Marks) */}
+        <div className="relative w-4 h-full flex flex-col justify-between py-2 text-[8px] font-mono">
           {ticks.reverse().map(t => (
             <div key={t} className="flex items-center gap-1">
               <div className="w-1.5 h-[1px]" style={{ backgroundColor: `${textColor}33` }}></div>

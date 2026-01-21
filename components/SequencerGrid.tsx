@@ -80,7 +80,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
 
 
         {/* Accent Row */}
-        <div className="flex items-center justify-end pr-1 md:pr-1.5 text-[7px] md:text-[9px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>ACC</div>
+        <div className="flex items-center justify-end pr-1 md:pr-2 text-[7px] md:text-[9px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>ACC</div>
         {steps.map((step, i) => (
           <div
             key={`acc-${i}`}
@@ -96,7 +96,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
         ))}
 
         {/* Slide Row */}
-        <div className="flex items-center justify-end pr-1 md:pr-1.5 text-[7px] md:text-[9px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>SLD</div>
+        <div className="flex items-center justify-end pr-1 md:pr-2 text-[7px] md:text-[9px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>SLD</div>
         {steps.map((step, i) => (
           <div
             key={`sld-${i}`}

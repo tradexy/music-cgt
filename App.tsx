@@ -325,7 +325,7 @@ function App() {
       }
 
       {/* Main Grid: 96% Height - Strict Layout */}
-      <div className="w-full h-[96vh] flex flex-col md:flex-row p-1 gap-1 items-stretch">
+      <div className="w-full h-[96vh] flex flex-col md:flex-row p-1 gap-1 md:gap-4 items-stretch">
 
         {/* Left Column: Sequencer (65-70%) */}
         <div className="flex-col min-h-0 flex-[65] md:flex-[70] relative flex">
@@ -415,7 +415,7 @@ function App() {
             </div>
 
             {/* Main Area: Spaced Out Vertical Sliders (Fill Rest) */}
-            <div className="flex-1 bg-black/30 p-1 md:p-4 rounded-[10px] border flex flex-nowrap justify-between gap-1 min-h-0 overflow-hidden" style={{ borderColor: `${textColor}11` }}>
+            <div className="flex-1 bg-black/30 p-1 md:p-6 rounded-[10px] border flex flex-nowrap justify-between gap-1 md:gap-8 min-h-0 overflow-hidden md:max-w-lg md:mx-auto w-full" style={{ borderColor: `${textColor}11` }}>
               <VerticalSlider
                 label="BPM" value={state.bpm} min={20} max={300}
                 onChange={(v) => setState(p => ({ ...p, bpm: v }))}

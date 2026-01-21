@@ -33,7 +33,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
   return (
     <div className="flex flex-col h-full select-none bg-black/40 p-1 md:p-1.5 rounded-[12px] md:rounded-[20px] border shadow-inner backdrop-blur-md overflow-hidden" style={{ borderColor: `${textColor}11` }}>
       {/* Unified Grid Container - Fluid height */}
-      <div className="grid grid-cols-[30px_repeat(16,1fr)] grid-rows-[min-content_repeat(13,1fr)_4px_repeat(2,1fr)] h-full gap-px md:gap-1 items-stretch">
+      <div className="grid grid-cols-[30px_repeat(16,1fr)] grid-rows-[min-content_repeat(13,1fr)_repeat(2,1fr)] h-full gap-px md:gap-1 items-stretch">
 
         {/* Header Row (Step Numbers) - Optional for extreme compactness but good for UX */}
         <div className="h-4"></div>
@@ -60,7 +60,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
                 <div
                   key={`${rowIdx}-${colIdx}`}
                   onClick={() => handleGridClick(colIdx, rowIdx)}
-                  className={`min-h-[14px] w-full rounded-sm border transition-all duration-75 cursor-pointer hover:brightness-125
+                  className={`h-full w-full rounded-sm border transition-all duration-75 cursor-pointer hover:brightness-125
                     ${isCurrent ? 'ring-1 z-10' : ''}`}
                   style={{
                     backgroundColor: isActive
@@ -78,8 +78,6 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
           </React.Fragment>
         ))}
 
-        {/* Spacer */}
-        <div className="h-2 col-span-17"></div>
 
         {/* Accent Row */}
         <div className="flex items-center justify-end pr-1 md:pr-1.5 text-[7px] md:text-[9px] font-black uppercase tracking-tighter opacity-40" style={{ color: textColor }}>ACC</div>
@@ -87,7 +85,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
           <div
             key={`acc-${i}`}
             onClick={() => onStepChange(i, { accent: !step.accent })}
-            className={`min-h-[12px] w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
+            className={`h-full w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
             style={{
               backgroundColor: step.accent ? '#ff00ff' : `${textColor}05`,
               borderColor: step.accent ? '#ff00ff' : (currentStep === i ? `${textColor}44` : `${textColor}11`),
@@ -103,7 +101,7 @@ export const SequencerGrid: React.FC<SequencerGridProps> = ({
           <div
             key={`sld-${i}`}
             onClick={() => onStepChange(i, { slide: !step.slide })}
-            className={`min-h-[12px] w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
+            className={`h-full w-full rounded-sm border transition-all cursor-pointer ${currentStep === i ? 'ring-1 z-10' : ''}`}
             style={{
               backgroundColor: step.slide ? '#00ffff' : `${textColor}05`,
               borderColor: step.slide ? '#00ffff' : (currentStep === i ? `${textColor}44` : `${textColor}11`),

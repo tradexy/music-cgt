@@ -5,7 +5,7 @@ import { InstructionsModal } from './components/InstructionsModal';
 import { audioEngine } from './services/AudioEngine';
 import { midiService } from './services/MidiService';
 import { SequencerState, Step, NOTES, THEME_PRESETS } from './types';
-import { HelpCircle, Play, Square, Settings, Type, Zap, Download } from 'lucide-react';
+import { HelpCircle, Play, Square, Settings, Type, Zap, Download, RefreshCw } from 'lucide-react';
 
 // Constants
 const STEPS_PER_BAR = 16;
@@ -223,7 +223,7 @@ function App() {
             className="p-1 px-2 bg-white/5 rounded border transition-all hover:bg-white/10 flex items-center gap-1"
             style={{ color: textColor, borderColor: `${textColor}22` }}
           >
-            <Settings size={12} /> <span className="text-[9px] font-black uppercase hidden sm:inline">Theme</span>
+            <Settings size={12} /> <span className="text-[9px] font-black uppercase hidden sm:inline">Settings</span>
           </button>
 
           <select
@@ -268,9 +268,15 @@ function App() {
             </div>
 
             <div className="flex flex-wrap items-center gap-4 md:gap-8 justify-center">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 rounded-full text-[10px] font-black uppercase transition-all flex items-center gap-1"
+              >
+                <RefreshCw size={10} /> Reload App
+              </button>
               <div className="flex items-center gap-2">
                 <Zap size={14} style={{ color: textColor }} />
-                <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>Speed:</span>
+                <span className="text-[10px] font-black uppercase tracking-widest opacity-50" style={{ color: textColor }}>PC Keys Speed:</span>
                 <select
                   value={state.controlSpeed}
                   onChange={(e) => setState(prev => ({ ...prev, controlSpeed: Number(e.target.value) }))}
@@ -442,16 +448,6 @@ function App() {
         </div>
       </div>
 
-      {/* Mobile Scroll Hint */}
-      {
-        !hasScrolled && (
-          <div className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-50 pointer-events-none animate-bounce">
-            <div className="bg-white/10 backdrop-blur-lg px-6 py-3 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest shadow-2xl" style={{ color: textColor }}>
-              Scroll for Sliders ↓
-            </div>
-          </div>
-        )
-      }
 
       <InstructionsModal
         isOpen={isHelpOpen}

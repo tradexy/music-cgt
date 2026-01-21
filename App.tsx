@@ -194,14 +194,14 @@ function App() {
 
   return (
     <div
-      className="h-[100dvh] md:min-h-screen flex flex-col items-center p-1 md:p-8 transition-colors duration-500 overflow-hidden"
+      className="h-[100dvh] md:min-h-screen flex flex-col items-stretch p-1 md:p-6 transition-colors duration-500 overflow-hidden"
       style={{ backgroundColor: backdropColor }}
     >
 
       {/* Header */}
-      <div className="w-full max-w-7xl mb-2 md:mb-8 flex flex-row justify-between items-center md:items-end border-b pb-1 md:pb-4 shrink-0 gap-2 md:gap-4 px-2" style={{ borderColor: `${textColor}11` }}>
+      <div className="w-full mb-1 md:mb-4 flex flex-row justify-between items-center md:items-end border-b pb-1 md:pb-3 shrink-0 gap-2 md:gap-4 px-1 md:px-4" style={{ borderColor: `${textColor}11` }}>
         <div className="flex items-center gap-2 md:gap-6">
-          <div>
+          <div className="shrink-0">
             <h1 className="text-xl md:text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
               music<span style={{ color: textColor }}>-cgt</span>
             </h1>
@@ -258,7 +258,7 @@ function App() {
       {
         showThemeSettings && (
           <div
-            className="w-full max-w-7xl animate-in slide-in-from-top duration-300 mb-8 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-center md:justify-between shrink-0"
+            className="w-full animate-in slide-in-from-top duration-300 mb-4 p-4 bg-white/5 rounded-2xl border flex flex-wrap items-center gap-6 justify-center md:justify-between shrink-0"
             style={{ borderColor: `${textColor}22` }}
           >
             <div className="flex items-center gap-4">
@@ -332,12 +332,12 @@ function App() {
         )
       }
 
-      {/* Main Grid: Stacks on Mobile with grid-rows to ensure 100% height fit */}
-      <div className="w-full max-w-[1600px] grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] grid-rows-[2.3fr_1fr] lg:grid-rows-1 flex-1 mb-1 md:mb-8 px-1 md:px-4 gap-1 md:gap-6 min-h-0">
+      {/* Main Grid: Adapts to orientation and screen size */}
+      <div className="w-full grid grid-cols-1 sm:grid-cols-[2fr_1fr] md:grid-cols-[2.2fr_1fr] flex-1 mb-1 md:mb-4 px-1 md:px-4 gap-1 md:gap-4 min-h-0 items-stretch">
 
         {/* Left Column: Sequencer */}
-        <div className="flex flex-col gap-4 md:gap-6 min-h-0">
-          <div className="bg-black/40 p-2 md:p-4 rounded-[20px] md:rounded-[30px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
+        <div className="flex flex-col gap-2 md:gap-4 min-h-0 flex-[2.3] sm:flex-auto">
+          <div className="flex-1 bg-black/40 p-1 md:p-2 rounded-[12px] md:rounded-[24px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
             <div className="md:pr-2">
               <div className="w-full">
                 <SequencerGrid
@@ -378,25 +378,25 @@ function App() {
 
         {/* Right Column: Integrated Controls */}
         <div
-          className="bg-white/5 p-2 md:p-6 rounded-[15px] md:rounded-[30px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-2 md:gap-8 min-h-0 overflow-hidden"
+          className="bg-white/5 p-2 md:p-4 rounded-[12px] md:rounded-[24px] border shadow-[0_40px_100px_rgba(0,0,0,0.6)] backdrop-blur-xl flex flex-col gap-2 md:gap-6 flex-1 sm:flex-auto min-h-0 overflow-hidden"
           style={{ borderColor: `${textColor}11` }}
         >
 
           {/* Top Row: Play & Waveform */}
-          <div className="flex flex-col sm:flex-row items-stretch gap-4 sm:h-16 shrink-0">
+          <div className="flex flex-row items-stretch gap-2 shrink-0 h-10 md:h-14">
             <button
               onClick={togglePlay}
-              className="flex-[1.5] py-4 sm:py-0 rounded-[15px] sm:rounded-[20px] flex items-center justify-center transition-all shadow-xl hover:scale-[1.01] active:scale-[0.98]"
+              className="flex-1 rounded-[10px] md:rounded-[15px] flex items-center justify-center transition-all shadow-xl hover:scale-[1.01] active:scale-[0.98]"
               style={{ backgroundColor: state.isPlaying ? '#ef4444' : primaryColor, color: textColor }}
             >
               {state.isPlaying ? (
-                <div className="flex items-center gap-2 font-black italic text-lg md:text-xl uppercase tracking-tighter"><Square size={20} fill="currentColor" /> Stop</div>
+                <div className="flex items-center gap-2 font-black italic text-sm md:text-base uppercase tracking-tighter"><Square size={16} fill="currentColor" /> Stop</div>
               ) : (
-                <div className="flex items-center gap-2 font-black italic text-lg md:text-xl uppercase tracking-tighter"><Play size={20} fill="currentColor" /> Play</div>
+                <div className="flex items-center gap-2 font-black italic text-sm md:text-base uppercase tracking-tighter"><Play size={16} fill="currentColor" /> Play</div>
               )}
             </button>
 
-            <div className="flex-1 bg-black/40 rounded-[15px] sm:rounded-[20px] flex p-1 border min-h-[40px]" style={{ borderColor: `${textColor}11` }}>
+            <div className="flex-1 bg-black/40 rounded-[10px] md:rounded-[15px] flex p-0.5 border" style={{ borderColor: `${textColor}11` }}>
               <button
                 className={`flex-1 flex items-center justify-center text-[10px] md:text-xs font-black rounded-[20px] transition-all`}
                 style={{

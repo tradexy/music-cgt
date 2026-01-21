@@ -194,19 +194,19 @@ function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center p-4 md:p-8 transition-colors duration-500 overflow-y-auto"
+      className="min-h-screen flex flex-col items-center p-2 md:p-8 transition-colors duration-500 overflow-x-hidden"
       style={{ backgroundColor: backdropColor }}
       onScrollCapture={() => setHasScrolled(true)}
     >
 
       {/* Header */}
-      <div className="w-full max-w-7xl mb-8 flex flex-col md:flex-row justify-between items-center md:items-end border-b pb-4 shrink-0 gap-4" style={{ borderColor: `${textColor}11` }}>
-        <div className="flex items-center gap-6">
+      <div className="w-full max-w-7xl mb-4 md:mb-8 flex flex-col md:flex-row justify-between items-center md:items-end border-b pb-2 md:pb-4 shrink-0 gap-2 md:gap-4" style={{ borderColor: `${textColor}11` }}>
+        <div className="flex items-center gap-4 md:gap-6">
           <div>
-            <h1 className="text-4xl md:text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
+            <h1 className="text-2xl md:text-5xl font-black tracking-tighter italic" style={{ color: primaryColor }}>
               music<span style={{ color: textColor }}>-cgt</span>
             </h1>
-            <p className="text-[10px] mt-1 uppercase tracking-[0.3em] font-black opacity-50" style={{ color: textColor }}>Professional Acid Engine</p>
+            <p className="text-[8px] md:text-[10px] mt-0.5 md:mt-1 uppercase tracking-[0.2em] md:tracking-[0.3em] font-black opacity-50" style={{ color: textColor }}>Professional Acid Engine</p>
           </div>
 
           <button
@@ -334,13 +334,13 @@ function App() {
       }
 
       {/* Main Grid: Stacks on Mobile, Side-by-side on Desktop */}
-      <div className="w-full max-w-[1600px] grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-4 md:gap-6 flex-1 mb-8 px-4">
+      <div className="w-full max-w-[1600px] grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] flex-1 mb-4 md:mb-8 px-2 md:px-4 gap-4">
 
         {/* Left Column: Sequencer */}
         <div className="flex flex-col gap-4 md:gap-6 min-h-0">
           <div className="bg-black/40 p-2 md:p-4 rounded-[20px] md:rounded-[30px] border shadow-2xl backdrop-blur-md flex flex-col min-h-0" style={{ borderColor: `${textColor}11` }}>
             <div className="md:pr-2">
-              <div className="min-w-[400px] md:min-w-0">
+              <div className="w-full">
                 <SequencerGrid
                   steps={state.steps}
                   currentStep={state.currentStep}
@@ -473,7 +473,7 @@ function App() {
       />
 
       {/* Footer */}
-      <div className="py-10 flex flex-col items-center gap-4 text-[9px] font-black tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
+      <div className="py-2 md:py-10 flex flex-col items-center gap-2 md:gap-4 text-[8px] md:text-[9px] font-black tracking-[0.2em] md:tracking-[0.3em] uppercase opacity-40 shrink-0" style={{ color: textColor }}>
         <div className="flex flex-wrap justify-center items-center gap-4 md:gap-6">
           <span>Web Audio 3.3</span>
           <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: textColor }}></div>
